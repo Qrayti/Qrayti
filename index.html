@@ -217,7 +217,10 @@
   <script>
     const lang = localStorage.getItem('lang');
     if (!lang) {
-      applyLang('fr');
+      loadLang('fr', () => {
+        renderI18n();
+        document.getElementById('langPickerOverlay').classList.add('show');
+      });
     } else {
       applyLang(lang);
     }
