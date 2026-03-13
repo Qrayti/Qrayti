@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Qrayti.ma | Accueil</title>
+  <base href="./">
   <link rel="stylesheet" href="assets/css/shared.css?v=1">
   <link rel="stylesheet" href="assets/css/index.css?v=1">
 </head>
@@ -213,5 +214,14 @@
 
   <script src="assets/js/shared.js?v=1"></script>
   <script src="assets/js/index.js?v=1"></script>
+  <script>
+    const lang = localStorage.getItem('lang');
+    if (!lang) {
+      applyLang('fr');
+    } else {
+      applyLang(lang);
+    }
+    if (typeof window.showPage === 'function') window.showPage();
+  </script>
 </body>
 </html>
