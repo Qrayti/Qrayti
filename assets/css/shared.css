@@ -206,10 +206,24 @@ html[dir='rtl'] .lang-nav-dropdown { right:auto; left:0; }
 .pdf-btn:hover { border-color:var(--blue); color:var(--blue); }
 .pdf-btn.primary { background:var(--blue); color:white; border-color:var(--blue); }
 .pdf-btn.primary:hover { background:#1447c0; }
-.pdf-modal iframe { flex:1; border:none; width:100%; }
+.pdf-iframe-wrapper { flex:1; position:relative; overflow:hidden; }
+.pdf-iframe-wrapper iframe { position:absolute; top:-50px; left:0; width:100%; height:calc(100% + 50px); border:none; }
 #pdfFrame { overflow: auto; -webkit-overflow-scrolling: touch; }
+#pdfFrame::-webkit-scrollbar {
+  width: 12px;
+}
+#pdfFrame::-webkit-scrollbar-track {
+  background: var(--card);
+}
+#pdfFrame::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 6px;
+}
+#pdfFrame::-webkit-scrollbar-thumb:hover {
+  background: var(--text);
+}
 .pdf-loading { flex:1; display:flex; align-items:center; justify-content:center; color:var(--muted); font-size:14px; }
-@media(max-width:640px) { .pdf-modal { width:100vw; height:100vh; border-radius:0; } }
+@media(max-width:640px) { .pdf-modal { width:100vw; height:100vh; border-radius:0; } #pdfFrame::-webkit-scrollbar { display: none; } }
 
 /* Onboarding Overlays (Theme/Lang Pickers) */
 .full-overlay {
