@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Qrayti.ma — Contact</title>
+  <script>
+    (function(){
+      try{
+        var lang = localStorage.getItem('lang') || 'fr';
+        var html = document.documentElement;
+        html.setAttribute('lang', lang);
+        html.setAttribute('dir', lang === 'ar' ? 'rtl' : 'ltr');
+        html.classList.add('pre-lang');
+      }catch(e){}
+    })();
+  </script>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+
+    :root { --blue:#1a56db; --blue-light:#eff4ff; --blue-mid:#c7d9ff; --text:#111827; --muted:#6b7280; --border:#e5e7eb; --white:#ffffff; --bg:#ffffff; --card:#ffffff; --nav-bg:rgba(255,255,255,0.95); --input-bg:#ffffff; }
+    html.dark body { --text:#f3f4f6; --muted:#9ca3af; --border:#374151; --white:#1f2937; --bg:#111827; --card:#1f2937; --nav-bg:rgba(17,24,39,0.97); --input-bg:#1f2937; --blue-light:#1e3a5f; --blue-mid:#1e3a8a; }
+    html, body { overflow-x:hidden; } body { font-family:'DM Sans',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; transition:background .2s,color .2s; }
+    nav { display:flex; align-items:center; justify-content:space-between; padding:14px 48px; border-bottom:1px solid var(--border); position:sticky; top:0; background:var(--nav-bg); backdrop-filter:blur(10px); z-index:100; }
+    .logo { display:flex; align-items:center; text-decoration:none; }
+    .nav-links { display:flex; align-items:center; gap:24px; }
+    .nav-links a { font-size:14px; font-weight:500; color:var(--muted); text-decoration:none; transition:color .15s; }
+    .nav-links a:hover { color:var(--text); } .nav-links a.active { color:var(--blue); font-weight:600; }
+    .nav-right { display:flex; align-items:center; gap:12px; }
+    .dark-toggle { width:36px; height:36px; border-radius:50%; border:1.5px solid var(--border); background:var(--card); color:var(--text); cursor:pointer; font-size:16px; display:flex; align-items:center; justify-content:center; transition:all .2s; flex-shrink:0; }
+    .dark-toggle:hover { border-color:var(--blue); color:var(--blue); }
+    .hamburger { display:none; flex-direction:column; gap:5px; cursor:pointer; padding:4px; }
+    .hamburger span { display:block; width:22px; height:2px; background:var(--text); border-radius:99px; }
+    .mobile-menu { display:none; flex-direction:column; padding:16px 24px; border-bottom:1px solid var(--border); background:var(--bg); gap:14px; }
+    .mobile-menu.open { display:flex; }
+    .mobile-menu a { font-size:15px; font-weight:500; color:var(--muted); text-decoration:none; }
+    .mobile-menu a.active { color:var(--blue); font-weight:600; }
+    .pdf-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:1000; align-items:center; justify-content:center; backdrop-filter:blur(4px); }
+    .pdf-overlay.open { display:flex; }
+    .pdf-modal { background:var(--card); border-radius:16px; width:90vw; max-width:900px; height:88vh; display:flex; flex-direction:column; box-shadow:0 24px 80px rgba(0,0,0,0.4); overflow:hidden; }
+    .pdf-modal-header { display:flex; align-items:center; justify-content:space-between; padding:14px 20px; border-bottom:1px solid var(--border); flex-shrink:0; }
+    .pdf-modal-title { font-size:14px; font-weight:600; color:var(--text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:70%; }
+    .pdf-modal-actions { display:flex; gap:8px; flex-shrink:0; }
+    .pdf-btn { padding:7px 14px; border-radius:8px; font-size:13px; font-weight:600; cursor:pointer; border:1.5px solid var(--border); background:var(--card); color:var(--text); text-decoration:none; display:flex; align-items:center; gap:5px; transition:all .15s; font-family:'DM Sans',sans-serif; }
+    .pdf-btn:hover { border-color:var(--blue); color:var(--blue); }
+    .pdf-btn.primary { background:var(--blue); color:white; border-color:var(--blue); }
+    .pdf-btn.primary:hover { background:#1447c0; }
+    .pdf-modal iframe { flex:1; border:none; width:100%; }
+    .pdf-loading { flex:1; display:flex; align-items:center; justify-content:center; color:var(--muted); font-size:14px; }
+    footer { text-align:center; padding:24px; font-size:12px; color:var(--muted); border-top:1px solid var(--border); }
+    @media(max-width:640px) { nav { padding:12px 20px; } .nav-links { display:none; } .hamburger { display:flex; } .pdf-modal { width:100vw; height:100vh; border-radius:0; } }
+
+    /* ── PAGE LAYOUT ── */
+    .main { max-width:520px; margin:72px auto 80px; padding:0 24px; }
+    .page-badge { display:inline-block; background:var(--blue-light); color:var(--blue); font-size:12px; font-weight:600; padding:5px 14px; border-radius:99px; margin-bottom:20px; }
+    h1 { font-size:30px; font-weight:600; letter-spacing:-1px; margin-bottom:12px; line-height:1.25; }
+    .subtitle { font-size:15px; color:var(--muted); line-height:1.7; margin-bottom:40px; }
+    .section-title { font-size:12px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:var(--muted); margin-bottom:16px; }
+
+    /* ── CONTACT CARDS ── */
+    .contact-grid { display:flex; flex-direction:column; gap:12px; }
+    .contact-card {
+      display:flex; align-items:center; gap:16px;
+      padding:20px 24px; border:1.5px solid var(--border); border-radius:14px;
+      text-decoration:none; color:var(--text); background:var(--card);
+      transition:border-color .15s, background .15s, transform .15s;
+      cursor:pointer;
+    }
+    .contact-card:hover { border-color:var(--blue); background:var(--blue-light); transform:translateX(3px); }
+    .contact-icon {
+      width:44px; height:44px; border-radius:12px; background:var(--bg);
+      border:1px solid var(--border);
+      display:flex; align-items:center; justify-content:center; flex-shrink:0;
+      overflow:hidden;
+    }
+    .contact-icon img { width:24px; height:24px; object-fit:contain; display:block; }
+    .contact-info { display:flex; flex-direction:column; gap:2px; flex:1; min-width:0; }
+    .contact-label { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.6px; color:var(--muted); }
+    .contact-value { font-size:15px; font-weight:600; color:var(--text); }
+    .contact-arrow { font-size:16px; color:var(--muted); margin-left:auto; flex-shrink:0; }
+
+    /* ── ERROR / LOADING STATES ── */
+    .contact-status { font-size:14px; color:var(--muted); padding:24px 0; display:flex; align-items:center; gap:10px; }
+    .contact-error { background:var(--blue-light); border:1.5px solid var(--blue-mid); border-radius:12px; padding:16px 20px; font-size:14px; color:var(--text); }
+    .contact-error strong { color:var(--blue); }
+
+    @media(max-width:640px) { .main { margin:40px auto 60px; } h1 { font-size:24px; } .contact-card { padding:16px 18px; } }
+
+    /* ── THEME PICKER MODAL ── */
+    .theme-picker-overlay {
+      display:none; position:fixed; inset:0; background:rgba(0,0,0,0.7);
+      z-index:5000; align-items:center; justify-content:center; backdrop-filter:blur(8px);
+    }
+    .theme-picker-overlay.show { display:flex; }
+    .theme-picker-box {
+      background:var(--card); border-radius:24px; padding:44px 36px;
+      text-align:center; width:88%; max-width:340px;
+      box-shadow:0 32px 80px rgba(0,0,0,0.35);
+      animation:popIn .3s cubic-bezier(.34,1.56,.64,1);
+    }
+    @keyframes popIn { from{opacity:0;transform:scale(.88)} to{opacity:1;transform:scale(1)} }
+    .theme-picker-emoji { font-size:36px; margin-bottom:12px; }
+    .theme-picker-box h2 { font-size:20px; font-weight:700; margin-bottom:6px; color:var(--text); }
+    .theme-picker-box p  { font-size:13px; color:var(--muted); margin-bottom:28px; }
+    .theme-picker-btns  { display:flex; gap:12px; }
+    .theme-pick-btn {
+      flex:1; padding:16px 12px; border-radius:14px; border:1.5px solid var(--border);
+      background:var(--card); cursor:pointer; font-size:15px; font-weight:600;
+      color:var(--text); font-family:'DM Sans',sans-serif;
+      transition:all .15s; display:flex; flex-direction:column; align-items:center; gap:6px;
+    }
+    .theme-pick-btn:hover { border-color:var(--blue); background:var(--blue-light); color:var(--blue); }
+    .theme-pick-btn .pick-icon { font-size:26px; }
+
+    /* ── SPOTLIGHT COACHMARK ── */
+    .spotlight-overlay {
+      display:none; position:fixed; inset:0; z-index:6000; background:transparent;
+    }
+    .spotlight-overlay.show { display:block; }
+    .spotlight-hole {
+      position:fixed; border-radius:50%;
+      box-shadow:0 0 0 9999px rgba(0,0,0,0.75);
+      transition:all .3s; pointer-events:none; z-index:6001;
+    }
+    .spotlight-tooltip {
+      position:fixed; background:var(--card); border-radius:14px;
+      padding:16px 18px; max-width:220px; z-index:6002;
+      box-shadow:0 8px 32px rgba(0,0,0,0.25); border:1.5px solid var(--border);
+      animation:popIn .3s cubic-bezier(.34,1.56,.64,1) .15s both;
+    }
+    .spotlight-tooltip::before {
+      content:''; position:absolute; top:-8px; right:18px;
+      border-left:8px solid transparent; border-right:8px solid transparent;
+      border-bottom:8px solid var(--border);
+    }
+    .spotlight-tooltip::after {
+      content:''; position:absolute; top:-6.5px; right:19px;
+      border-left:7px solid transparent; border-right:7px solid transparent;
+      border-bottom:7px solid var(--card);
+    }
+    .spotlight-tooltip p { font-size:13px; color:var(--text); line-height:1.5; margin-bottom:12px; }
+    .spotlight-gotit {
+      width:100%; padding:8px; background:var(--blue); color:white; border:none;
+      border-radius:8px; font-size:13px; font-weight:600; cursor:pointer;
+      font-family:'DM Sans',sans-serif; transition:background .15s;
+    }
+    .spotlight-gotit:hover { background:#1447c0; }
+
+    /* ── LANG PICKER ── */
+    .lang-picker-overlay {
+      display:none; position:fixed; inset:0; background:rgba(0,0,0,0.7);
+      z-index:5500; align-items:center; justify-content:center; backdrop-filter:blur(8px);
+    }
+    .lang-picker-overlay.show { display:flex; }
+    .lang-picker-box {
+      background:var(--card); border-radius:24px; padding:44px 36px;
+      text-align:center; width:88%; max-width:340px;
+      box-shadow:0 32px 80px rgba(0,0,0,0.35);
+      animation:popIn .3s cubic-bezier(.34,1.56,.64,1);
+    }
+    .lang-picker-emoji { font-size:36px; margin-bottom:12px; }
+    .lang-picker-box h2 { font-size:20px; font-weight:700; margin-bottom:6px; color:var(--text); }
+    .lang-picker-box p  { font-size:13px; color:var(--muted); margin-bottom:28px; }
+    .lang-picker-btns { display:flex; flex-direction:column; gap:10px; }
+    .lang-pick-btn {
+      display:flex; align-items:center; gap:14px; padding:13px 18px;
+      border:1.5px solid var(--border); border-radius:12px; background:var(--card);
+      cursor:pointer; font-size:15px; font-weight:600; color:var(--text);
+      font-family:'DM Sans','Cairo',sans-serif; transition:all .15s;
+    }
+    .lang-pick-btn:hover { border-color:var(--blue); background:var(--blue-light); color:var(--blue); }
+    .lang-pick-btn .flag { font-size:22px; }
+    /* NAV LANG BTN */
+    .lang-nav-btn {
+      width:36px; height:36px; border-radius:50%; border:1.5px solid var(--border);
+      background:var(--card); cursor:pointer; font-size:18px; display:flex;
+      align-items:center; justify-content:center; transition:all .2s; flex-shrink:0;
+    }
+    .lang-nav-btn:hover { border-color:var(--blue); }
+    .lang-nav-dropdown {
+      display:none; position:absolute; top:calc(100% + 8px); right:0;
+      background:var(--card); border:1.5px solid var(--border); border-radius:12px;
+      padding:6px; min-width:140px; box-shadow:0 8px 24px rgba(0,0,0,0.12); z-index:500;
+    }
+    html[dir='rtl'] .lang-nav-dropdown { right:auto; left:0; }
+    .lang-nav-dropdown.open { display:flex; flex-direction:column; gap:2px; }
+    .lang-nav-dropdown button {
+      display:flex; align-items:center; gap:10px; padding:8px 10px;
+      border:none; background:none; cursor:pointer; font-size:13px; font-weight:500;
+      color:var(--text); border-radius:8px; width:100%;
+      font-family:'DM Sans','Cairo',sans-serif; transition:background .15s;
+    }
+    .lang-nav-dropdown button:hover { background:var(--blue-light); color:var(--blue); }
+    .lang-wrapper { position:relative; }
+    /* ARABIC FONT */
+    html[lang='ar'] body, html[lang='ar'] button, html[lang='ar'] input { font-family:'Cairo',sans-serif; }
+    html.pre-lang body { visibility:hidden; }
+
+  </style>
+  <script>if(localStorage.getItem("theme")==="dark"){document.documentElement.classList.add("dark");}</script>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <!-- LANG PICKER -->
+  <div class="lang-picker-overlay" id="langPicker">
+    <div class="lang-picker-box">
+      <div class="lang-picker-emoji">🌍</div>
+      <h2 data-i18n="lang_pick_title">Choisissez votre langue</h2>
+      <p data-i18n="lang_pick_sub">Choose your language / اختر لغتك</p>
+      <div class="lang-picker-btns">
+        <button class="lang-pick-btn" onclick="pickLang('fr')"><span class="flag">🇫🇷</span> Français</button>
+        <button class="lang-pick-btn" onclick="pickLang('en')"><span class="flag">🇬🇧</span> English</button>
+        <button class="lang-pick-btn" onclick="pickLang('ar')"><span class="flag">🇲🇦</span> العربية</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- LANG SPOTLIGHT -->
+  <div class="spotlight-overlay" id="langSpotlightOverlay" onclick="dismissLangSpotlight()">
+    <div class="spotlight-hole" id="langSpotlightHole"></div>
+    <div class="spotlight-tooltip" id="langSpotlightTooltip">
+      <p data-i18n="spotlight_lang">Tu peux changer la langue ici 🌍</p>
+      <button class="spotlight-gotit" onclick="dismissLangSpotlight()"><span data-i18n="gotit">OK, compris !</span></button>
+    </div>
+  </div>
+
+  <!-- THEME PICKER -->
+  <div class="theme-picker-overlay" id="themePicker">
+    <div class="theme-picker-box">
+      <div class="theme-picker-emoji">👋</div>
+      <h2><span data-i18n="onboard_welcome">Bienvenue sur Qrayti.ma</span></h2>
+      <p><span data-i18n="onboard_sub">Choisis ton thème préféré pour commencer</span></p>
+      <div class="theme-picker-btns">
+        <button class="theme-pick-btn" onclick="pickTheme('light')">
+          <span class="pick-icon">🌤️</span><span class="pick-icon">🌤️</span> <span data-i18n="onboard_light">Clair</span>
+        </button>
+        <button class="theme-pick-btn" onclick="pickTheme('dark')">
+          <span class="pick-icon">🌙</span><span class="pick-icon">🌙</span> <span data-i18n="onboard_dark">Sombre</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SPOTLIGHT -->
+  <div class="spotlight-overlay" id="spotlightOverlay" onclick="dismissSpotlight()">
+    <div class="spotlight-hole" id="spotlightHole"></div>
+    <div class="spotlight-tooltip" id="spotlightTooltip">
+      <p><span data-i18n="spotlight_theme">Tu peux toujours changer le thème ici 🎨</span></p>
+      <button class="spotlight-gotit" onclick="dismissSpotlight()"><span data-i18n="gotit">OK, compris !</span></button>
+    </div>
+  </div>
+
+  <nav>
+    <a href="index.html" class="logo"><img src="icons/logo.png" style="height:34px;width:auto;filter:none;" alt="Qrayti.ma"></a>
+    <div class="nav-links"><a href="index.html"><span data-i18n="nav_home">Accueil</span></a><a href="browse.html"><span data-i18n="nav_browse">Parcourir</span></a><a href="about.html"><span data-i18n="nav_about">À propos</span></a><a href="contact.html" class="active"><span data-i18n="nav_contact">Contact</span></a></div>
+    <div class="nav-right">
+      <div class="lang-wrapper" id="langWrapper"><button class="lang-nav-btn" id="langBtn" onclick="toggleLangMenu()">🇫🇷</button><div class="lang-nav-dropdown" id="langDropdown"><button onclick="switchLang('fr')">🇫🇷 Français</button><button onclick="switchLang('en')">🇬🇧 English</button><button onclick="switchLang('ar')">🇲🇦 العربية</button></div></div>
+      <button class="dark-toggle" onclick="toggleDark()" id="darkBtn">🌙</button>
+      <div class="hamburger" onclick="toggleMobileMenu()"><span></span><span></span><span></span></div>
+    </div>
+  </nav>
+  <div class="mobile-menu" id="mobileMenu"><a href="index.html"><span data-i18n="nav_home">Accueil</span></a><a href="browse.html"><span data-i18n="nav_browse">Parcourir</span></a><a href="about.html"><span data-i18n="nav_about">À propos</span></a><a href="contact.html" class="active"><span data-i18n="nav_contact">Contact</span></a></div>
+
+  <div class="pdf-overlay" id="pdfOverlay" onclick="closePdf(event)">
+    <div class="pdf-modal">
+      <div class="pdf-modal-header">
+        <div class="pdf-modal-title" id="pdfTitle">Document</div>
+        <div class="pdf-modal-actions">
+          <a class="pdf-btn primary" id="pdfOpenLink" href="#" target="_blank"><span data-i18n="pdf_open">↗ Ouvrir</span></a>
+          <button class="pdf-btn" onclick="closePdfDirect()">✕</button>
+        </div>
+      </div>
+      <div class="pdf-loading" id="pdfLoading"><span data-i18n="pdf_loading">Chargement...</span></div>
+      <iframe id="pdfFrame" src="" style="display:none;"></iframe>
+    </div>
+  </div>
+
+  <div class="main">
+    <div class="page-badge">📬 Contact</div>
+    <h1>Tu veux contribuer<br>ou nous contacter ?</h1>
+    <p class="subtitle">Tu as des cours, examens ou TDs à partager ? Contacte-nous via WhatsApp, email ou Instagram — on s'occupe de tout ajouter.</p>
+
+    <div class="contact-grid" id="contactGrid">
+      <div class="contact-status">
+        <span>⏳</span> <span data-i18n="loading">Chargement...</span>
+      </div>
+    </div>
+  </div>
+
+  <footer><span data-i18n="footer">Qrayti.ma · FSDM · USMBA Fès · 2025</span></footer>
+
+  <script>
+
+    // ── TRANSLATIONS ──
+    let LANGS = {};
+    function loadLang(lang, callback) {
+      fetch('lang/' + lang + '.json?v=1')
+        .then(r => r.json())
+        .then(data => { LANGS[lang] = data; if(callback) callback(); })
+        .catch(() => { if(callback) callback(); });
+    }
+    function t(key) {
+      const l = localStorage.getItem('lang') || 'fr';
+      return (LANGS[l] && LANGS[l][key]) || (LANGS['fr'] && LANGS['fr'][key]) || key;
+    }
+    function applyLang(lang) {
+      localStorage.setItem('lang', lang);
+      document.documentElement.setAttribute('dir', lang === 'ar' ? 'rtl' : 'ltr');
+      document.documentElement.setAttribute('lang', lang);
+      const flags = {fr:'🇫🇷', en:'🇬🇧', ar:'🇲🇦'};
+      const lb = document.getElementById('langBtn');
+      if (lb) lb.textContent = flags[lang] || '🇫🇷';
+      if (!LANGS[lang]) {
+        loadLang(lang, () => renderI18n());
+      } else {
+        renderI18n();
+      }
+    }
+    function renderI18n() {
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const k = el.getAttribute('data-i18n');
+        if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') el.placeholder = t(k);
+        else el.innerHTML = t(k);
+      });
+      document.documentElement.classList.remove('pre-lang');
+      if (typeof rerender === 'function') rerender();
+    }
+
+    // ── CONTACT CARDS ──
+    function renderContacts(contacts) {
+      const grid = document.getElementById('contactGrid');
+      if (!contacts || contacts.length === 0) {
+        grid.innerHTML = '<div class="contact-error"><strong>Aucun contact disponible.</strong></div>';
+        return;
+      }
+      grid.innerHTML = contacts.map(c => {
+        const isExternal = c.link && !c.link.startsWith('mailto:') && !c.link.startsWith('tel:');
+        const target = isExternal ? ' target="_blank" rel="noopener noreferrer"' : '';
+        const iconSlug = (c.title || '').trim();
+        return `
+          <a class="contact-card" href="${c.link || '#'}"${target}>
+            <div class="contact-icon">
+              <img src="icons/${iconSlug}.svg" alt="${iconSlug}" onerror="this.style.display='none'">
+            </div>
+            <div class="contact-info">
+              <div class="contact-label">${c.title || ''}</div>
+              <div class="contact-value">${c.value || ''}</div>
+            </div>
+            <div class="contact-arrow">→</div>
+          </a>`;
+      }).join('');
+    }
+
+    function loadContacts() {
+      fetch('contact.json?v=1')
+        .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+        .then(data => renderContacts(data.contacts || []))
+        .catch(err => {
+          document.getElementById('contactGrid').innerHTML =
+            `<div class="contact-error"><strong>Impossible de charger les contacts.</strong><br>Vérifie que <code>contact.json</code> est bien présent dans le dossier du site.</div>`;
+        });
+    }
+
+    // ── DARK / MOBILE / PDF ──
+    function toggleDark() { const d=document.documentElement.classList.toggle('dark'); document.getElementById('darkBtn').textContent=d?'☀️':'🌙'; localStorage.setItem('theme',d?'dark':'light'); }
+    (function(){if(localStorage.getItem('theme')==='dark'){const b=document.getElementById('darkBtn');if(b)b.textContent='☀️';}})();
+    function toggleMobileMenu(){ document.getElementById('mobileMenu').classList.toggle('open'); }
+    function openPdf(id,title){ document.getElementById('pdfTitle').textContent=title; document.getElementById('pdfOpenLink').href='https://drive.google.com/file/d/'+id+'/view'; document.getElementById('pdfLoading').style.display='flex'; document.getElementById('pdfFrame').style.display='none'; document.getElementById('pdfFrame').src='https://drive.google.com/file/d/'+id+'/preview'; document.getElementById('pdfFrame').onload=()=>{document.getElementById('pdfLoading').style.display='none';document.getElementById('pdfFrame').style.display='block';}; document.getElementById('pdfOverlay').classList.add('open'); document.body.style.overflow='hidden'; }
+    function closePdf(e){ if(e.target===document.getElementById('pdfOverlay')) closePdfDirect(); }
+    function closePdfDirect(){ document.getElementById('pdfOverlay').classList.remove('open'); document.getElementById('pdfFrame').src=''; document.body.style.overflow=''; }
+    document.addEventListener('keydown',e=>{ if(e.key==='Escape') closePdfDirect(); });
+
+    // ── ONBOARDING FLOW ──
+    function pickLang(lang) {
+      applyLang(lang);
+      document.getElementById('langPicker').classList.remove('show');
+      const theme = localStorage.getItem('theme');
+      if (!theme) { setTimeout(()=>document.getElementById('themePicker').classList.add('show'), 350); }
+      else { setTimeout(showLangSpotlight, 350); }
+    }
+    function pickTheme(theme) {
+      localStorage.setItem('theme', theme);
+      if (theme==='dark') { document.documentElement.classList.add('dark'); const b=document.getElementById('darkBtn'); if(b) b.textContent='☀️'; }
+      else { document.documentElement.classList.remove('dark'); const b=document.getElementById('darkBtn'); if(b) b.textContent='🌙'; }
+      document.getElementById('themePicker').classList.remove('show');
+      setTimeout(showLangSpotlight, 350);
+    }
+    function showLangSpotlight() {
+      const btn = document.getElementById('langBtn');
+      if (!btn) return;
+      const rect = btn.getBoundingClientRect();
+      const r = Math.max(rect.width, rect.height)/2 + 12;
+      const cx = rect.left + rect.width/2;
+      const cy = rect.top + rect.height/2;
+      const hole = document.getElementById('langSpotlightHole');
+      hole.style.cssText = `left:${cx-r}px;top:${cy-r}px;width:${r*2}px;height:${r*2}px;`;
+      const tip = document.getElementById('langSpotlightTooltip');
+      const isRtl = document.documentElement.getAttribute('dir')==='rtl';
+      tip.style.top = (rect.bottom+14)+'px';
+      if(isRtl){ tip.style.left=(rect.left-4)+'px'; tip.style.right='auto'; }
+      else { tip.style.right=(window.innerWidth-rect.right-4)+'px'; tip.style.left='auto'; }
+      document.getElementById('langSpotlightOverlay').classList.add('show');
+      applyLang(localStorage.getItem('lang')||'fr');
+    }
+    function dismissLangSpotlight() {
+      document.getElementById('langSpotlightOverlay').classList.remove('show');
+      setTimeout(showThemeSpotlight, 300);
+    }
+    function showThemeSpotlight() {
+      const btn = document.getElementById('darkBtn');
+      if (!btn) return;
+      const rect = btn.getBoundingClientRect();
+      const r = Math.max(rect.width,rect.height)/2+12;
+      const cx = rect.left+rect.width/2;
+      const cy = rect.top+rect.height/2;
+      const hole = document.getElementById('spotlightHole');
+      hole.style.cssText = `left:${cx-r}px;top:${cy-r}px;width:${r*2}px;height:${r*2}px;`;
+      const tip = document.getElementById('spotlightTooltip');
+      tip.querySelector('p').textContent = t('spotlight_theme');
+      tip.querySelector('button').textContent = t('gotit');
+      const isRtl = document.documentElement.getAttribute('dir')==='rtl';
+      tip.style.top = (rect.bottom+14)+'px';
+      if(isRtl){ tip.style.left=(rect.left-4)+'px'; tip.style.right='auto'; }
+      else { tip.style.right=(window.innerWidth-rect.right-4)+'px'; tip.style.left='auto'; }
+      document.getElementById('spotlightOverlay').classList.add('show');
+    }
+    function dismissSpotlight() {
+      document.getElementById('spotlightOverlay').classList.remove('show');
+      localStorage.setItem('onboarded','1');
+    }
+    function toggleLangMenu() {
+      document.getElementById('langDropdown').classList.toggle('open');
+    }
+    document.addEventListener('click', function(e) {
+      const w = document.getElementById('langWrapper');
+      if(w && !w.contains(e.target)) document.getElementById('langDropdown').classList.remove('open');
+    });
+    function switchLang(lang) {
+      applyLang(lang);
+      document.getElementById('langDropdown').classList.remove('open');
+    }
+
+    // ── INIT ──
+    window.addEventListener('DOMContentLoaded', function() {
+      const lang = localStorage.getItem('lang');
+      const theme = localStorage.getItem('theme');
+      const onboarded = localStorage.getItem('onboarded');
+
+      function showPage() {}
+
+      loadContacts();
+
+      if (!lang) {
+        showPage();
+        document.getElementById('langPicker').classList.add('show');
+      } else {
+        loadLang('fr', () => {
+          const doLoad = () => {
+            applyLang(lang);
+            showPage();
+            if (!theme) {
+              document.getElementById('themePicker').classList.add('show');
+            } else if (!onboarded) {
+              if (!sessionStorage.getItem('spotlight_shown')) {
+                sessionStorage.setItem('spotlight_shown', '1');
+                setTimeout(showLangSpotlight, 400);
+              }
+            }
+          };
+          if (lang !== 'fr') {
+            loadLang(lang, doLoad);
+          } else {
+            doLoad();
+          }
+        });
+      }
+    });
+
+  </script>
+</body>
+</html>

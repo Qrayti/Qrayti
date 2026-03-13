@@ -1,0 +1,159 @@
+/* =====================================================================
+ * QRAYTI.MA - CONTACT PAGE CSS
+ * Compact horizontal row-list design (inspired by original Qrayti design)
+ * All cards visible at once without scrolling
+ * ===================================================================== */
+
+.contact-page {
+  flex: 1;
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 52px 48px;
+  width: 100%;
+}
+
+/* Page header badge */
+.contact-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--blue-light);
+  color: var(--blue);
+  border-radius: 20px;
+  padding: 5px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 22px;
+  border: 1px solid var(--blue-mid);
+}
+
+.contact-header h1 {
+  font-size: 32px;
+  font-weight: 800;
+  color: var(--text);
+  line-height: 1.25;
+  letter-spacing: -0.5px;
+  margin-bottom: 12px;
+}
+
+.contact-header p {
+  font-size: 15px;
+  color: var(--muted);
+  line-height: 1.6;
+  max-width: 460px;
+  margin-bottom: 36px;
+}
+
+/* Contact row list */
+.contact-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.contact-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 20px;
+  background: var(--card);
+  border: 1.5px solid var(--border);
+  border-radius: 14px;
+  text-decoration: none;
+  transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.contact-row:hover {
+  border-color: var(--blue);
+  transform: translateX(4px);
+  box-shadow: 0 4px 16px rgba(26, 86, 219, 0.08);
+}
+
+html.dark .contact-row:hover {
+  box-shadow: 0 4px 16px rgba(26, 86, 219, 0.2);
+}
+
+/* Icon circle */
+.contact-row-icon {
+  width: 46px;
+  height: 46px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  flex-shrink: 0;
+}
+
+.contact-row-icon.whatsapp { background: #dcfce7; }
+.contact-row-icon.email    { background: #eff4ff; }
+.contact-row-icon.instagram{ background: #fdf2f8; }
+.contact-row-icon.facebook { background: #eff6ff; }
+.contact-row-icon.default  { background: var(--blue-light); }
+
+html.dark .contact-row-icon.whatsapp { background: #14532d40; }
+html.dark .contact-row-icon.email    { background: #1e3a5f40; }
+html.dark .contact-row-icon.instagram{ background: #4a044e40; }
+html.dark .contact-row-icon.facebook { background: #1e3a5f40; }
+html.dark .contact-row-icon.default  { background: var(--blue-light); }
+
+/* Text group */
+.contact-row-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.contact-row-label {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 3px;
+}
+
+.contact-row-value {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Arrow */
+.contact-row-arrow {
+  color: var(--muted);
+  font-size: 18px;
+  flex-shrink: 0;
+  transition: transform 0.2s, color 0.2s;
+}
+
+.contact-row:hover .contact-row-arrow {
+  transform: translateX(3px);
+  color: var(--blue);
+}
+
+/* Error box */
+.contact-error {
+  text-align: center;
+  padding: 32px;
+  color: #ef4444;
+  background: var(--card);
+  border: 1.5px solid var(--border);
+  border-radius: 16px;
+  font-weight: 500;
+}
+
+/* Skeleton rows */
+.contact-skeleton { display: flex; flex-direction: column; gap: 12px; }
+.contact-skeleton .skel {
+  height: 78px;
+  background: var(--border);
+  border-radius: 14px;
+  animation: pulse 1.5s infinite ease-in-out;
+}
+@keyframes pulse { 0%,100%{opacity:.6} 50%{opacity:1} }
+
+@media(max-width: 768px) { .contact-page { padding: 36px 24px; } .contact-header h1 { font-size: 26px; } }
+@media(max-width: 480px) { .contact-page { padding: 24px 16px; } }

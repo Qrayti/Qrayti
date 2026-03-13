@@ -1,0 +1,169 @@
+/* =====================================================================
+ * QRAYTI.MA - ABOUT PAGE CSS
+ * ===================================================================== */
+
+.about-page {
+  flex: 1;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 60px 48px;
+  width: 100%;
+}
+
+/* Hero */
+.about-hero {
+  text-align: center;
+  padding-bottom: 50px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 48px;
+}
+.about-hero h1 {
+  font-size: 40px;
+  font-weight: 800;
+  color: var(--text);
+  line-height: 1.2;
+  letter-spacing: -0.8px;
+  margin-bottom: 18px;
+}
+.about-hero p {
+  font-size: 16px;
+  color: var(--muted);
+  line-height: 1.7;
+  max-width: 580px;
+  margin: 0 auto;
+}
+
+/* Stats */
+.about-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 56px;
+}
+.stat-card {
+  background: var(--card);
+  border: 1.5px solid var(--border);
+  border-radius: 16px;
+  padding: 24px 16px;
+  text-align: center;
+  transition: transform .2s, box-shadow .2s;
+}
+.stat-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.06);
+}
+html.dark .stat-card:hover { box-shadow: 0 8px 20px rgba(0,0,0,0.3); }
+.stat-num {
+  font-size: 36px;
+  font-weight: 800;
+  color: var(--blue);
+  line-height: 1;
+  margin-bottom: 6px;
+}
+.stat-label {
+  font-size: 13px;
+  color: var(--muted);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Sections */
+.about-section {
+  margin-bottom: 52px;
+}
+.about-section h2 {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 18px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid var(--border);
+}
+.about-section p {
+  font-size: 15px;
+  color: var(--muted);
+  line-height: 1.7;
+}
+
+/* Filieres Grid */
+.filiere-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.filiere-tag {
+  background: var(--blue-light);
+  color: var(--blue);
+  border-radius: 20px;
+  padding: 8px 18px;
+  font-size: 13px;
+  font-weight: 600;
+  border: 1px solid var(--blue-mid);
+  transition: all .15s;
+}
+.filiere-tag:hover { background: var(--blue); color: white; }
+
+.filiere-skeleton { display: flex; gap: 10px; flex-wrap: wrap; }
+.filiere-skeleton .skel {
+  height: 36px; width: 100px; border-radius: 20px;
+  background: var(--border); animation: pulse 1.5s infinite ease-in-out;
+}
+@keyframes pulse { 0%,100%{opacity:.6} 50%{opacity:1} }
+
+/* Types Grid */
+.types-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+.type-card {
+  background: var(--card);
+  border: 1.5px solid var(--border);
+  border-radius: 16px;
+  padding: 24px 16px;
+  text-align: center;
+  transition: transform .2s;
+}
+.type-card:hover { transform: translateY(-3px); }
+.type-icon { font-size: 32px; margin-bottom: 10px; }
+.type-name { font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 6px; }
+.type-sub { font-size: 12px; color: var(--muted); line-height: 1.4; }
+
+/* CTA Strip */
+.about-cta {
+  background: linear-gradient(135deg, var(--blue) 0%, #1447c0 100%);
+  border-radius: 20px;
+  padding: 48px 40px;
+  text-align: center;
+  color: white;
+  margin-top: 12px;
+}
+.about-cta h2 { font-size: 24px; font-weight: 800; margin-bottom: 10px; }
+.about-cta p  { font-size: 15px; opacity: 0.85; margin-bottom: 28px; }
+.cta-btn {
+  display: inline-block;
+  background: white;
+  color: var(--blue);
+  padding: 13px 28px;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: all .15s;
+}
+.cta-btn:hover { background: #f0f4ff; transform: translateY(-1px); }
+
+/* Responsive */
+@media (max-width: 768px) {
+  .about-page { padding: 40px 24px; }
+  .about-hero h1 { font-size: 28px; }
+  .about-stats { grid-template-columns: repeat(2, 1fr); }
+  .types-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 480px) {
+  .about-page { padding: 30px 16px; }
+  .about-stats { grid-template-columns: 1fr 1fr; }
+  .types-grid { grid-template-columns: 1fr 1fr; }
+  .about-cta { padding: 32px 20px; }
+}

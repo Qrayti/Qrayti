@@ -1,0 +1,19 @@
+{
+  "contacts": [
+    {
+      "title": "WhatsApp",
+      "value": "+212 6XX XXX XXX",
+      "link": "https://wa.me/212600000000"
+    },
+    {
+      "title": "Email",
+      "value": "contact@qrayti.ma",
+      "link": "mailto:contact@qrayti.ma"
+    },
+    {
+      "title": "Instagram",
+      "value": "@qrayti.ma",
+      "link": "https://instagram.com/qrayti.ma"
+    }
+  ]
+}

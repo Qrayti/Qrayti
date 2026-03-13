@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="fr" class="pre-lang">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Qrayti.ma | À propos</title>
+  <link rel="stylesheet" href="assets/css/shared.css?v=1">
+  <link rel="stylesheet" href="assets/css/about.css?v=1">
+</head>
+<body>
+
+  <div class="full-overlay" id="langPickerOverlay">
+    <div class="picker-box">
+      <div class="picker-emoji">🌍</div>
+      <h2 data-i18n="lang_pick_title">Choisissez votre langue</h2>
+      <p data-i18n="lang_pick_sub">Choose your language / اختر لغتك</p>
+      <div class="picker-btns col">
+        <button class="pick-btn row" onclick="pickLang('fr')"><span class="flag">🇫🇷</span> Français</button>
+        <button class="pick-btn row" onclick="pickLang('en')"><span class="flag">🇬🇧</span> English</button>
+        <button class="pick-btn row" onclick="pickLang('ar')"><span class="flag">🇲🇦</span> العربية</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="full-overlay" id="themePickerOverlay">
+    <div class="picker-box">
+      <div class="picker-emoji">👋</div>
+      <h2><span data-i18n="onboard_welcome">Bienvenue sur Qrayti.ma</span></h2>
+      <p><span data-i18n="onboard_sub">Choisis ton thème préféré pour commencer</span></p>
+      <div class="picker-btns">
+        <button class="pick-btn" onclick="pickTheme('light')"><span class="pick-icon">🌤️</span> <span data-i18n="onboard_light">Clair</span></button>
+        <button class="pick-btn" onclick="pickTheme('dark')"><span class="pick-icon">🌙</span> <span data-i18n="onboard_dark">Sombre</span></button>
+      </div>
+    </div>
+  </div>
+
+  <div class="spotlight-overlay" id="langSpotlightOverlay" onclick="dismissLangSpotlight()">
+    <div class="spotlight-hole" id="langSpotlightHole"></div>
+    <div class="spotlight-tooltip" id="langSpotlightTooltip">
+      <p data-i18n="spotlight_lang">Tu peux changer la langue ici 🌍</p>
+      <button class="spotlight-gotit" data-i18n="gotit">OK, compris !</button>
+    </div>
+  </div>
+
+  <div class="spotlight-overlay" id="spotlightOverlay" onclick="dismissSpotlight()">
+    <div class="spotlight-hole" id="spotlightHole"></div>
+    <div class="spotlight-tooltip" id="spotlightTooltip">
+      <p data-i18n="spotlight_theme">Tu peux toujours changer le thème ici 🎨</p>
+      <button class="spotlight-gotit" data-i18n="gotit">OK, compris !</button>
+    </div>
+  </div>
+
+  <nav>
+    <a href="index.html" class="logo"><img src="assets/icons/logo.png" alt="Qrayti.ma"></a>
+    <div class="nav-links">
+      <a href="index.html"><span data-i18n="nav_home">Accueil</span></a>
+      <a href="browse.html"><span data-i18n="nav_browse">Parcourir</span></a>
+      <a href="about.html" class="active"><span data-i18n="nav_about">À propos</span></a>
+      <a href="contact.html"><span data-i18n="nav_contact">Contact</span></a>
+    </div>
+    <div class="nav-right">
+      <div class="lang-wrapper" id="langWrapper">
+        <button class="lang-nav-btn" id="langBtn" onclick="toggleLangMenu()">🇫🇷</button>
+        <div class="lang-nav-dropdown" id="langDropdown">
+          <button onclick="switchLang('fr')">🇫🇷 Français</button>
+          <button onclick="switchLang('en')">🇬🇧 English</button>
+          <button onclick="switchLang('ar')">🇲🇦 العربية</button>
+        </div>
+      </div>
+      <button class="dark-toggle" onclick="toggleDark()" id="darkBtn">🌙</button>
+      <div class="hamburger" onclick="toggleMobileMenu()"><span></span><span></span><span></span></div>
+    </div>
+  </nav>
+
+  <div class="mobile-menu" id="mobileMenu">
+    <a href="index.html"><span data-i18n="nav_home">Accueil</span></a>
+    <a href="browse.html"><span data-i18n="nav_browse">Parcourir</span></a>
+    <a href="about.html" class="active"><span data-i18n="nav_about">À propos</span></a>
+    <a href="contact.html"><span data-i18n="nav_contact">Contact</span></a>
+  </div>
+
+  <main class="about-page">
+
+    <!-- Hero -->
+    <section class="about-hero">
+      <h1 data-i18n="about_h1">Le savoir de la FSDM,<br>accessible à tous</h1>
+      <p data-i18n="about_sub">Qrayti.ma est une plateforme étudiante gratuite qui centralise les ressources pédagogiques de la Faculté des Sciences Dhar El Mahraz — Fès.</p>
+    </section>
+
+    <!-- Stats bar — dynamically populated from CSV -->
+    <section class="about-stats" id="aboutStats">
+      <div class="stat-card"><div class="stat-num" id="statFiles">—</div><div class="stat-label" data-i18n="stat_files">Fichiers</div></div>
+      <div class="stat-card"><div class="stat-num" id="statModules">—</div><div class="stat-label" data-i18n="stat_modules">Modules</div></div>
+      <div class="stat-card"><div class="stat-num" id="statFilieres">—</div><div class="stat-label" data-i18n="stat_filieres">Filières</div></div>
+      <div class="stat-card"><div class="stat-num" id="statSems">—</div><div class="stat-label" data-i18n="stat_sems">Semestres</div></div>
+    </section>
+
+    <!-- Who are we -->
+    <section class="about-section">
+      <h2 data-i18n="who_title">Qui sommes-nous</h2>
+      <p data-i18n="about_who_body">Nous sommes des étudiants de la FSDM qui ont voulu créer un espace centralisé pour faciliter l'accès aux ressources pédagogiques. Qrayti.ma est un projet communautaire, gratuit et open-source.</p>
+    </section>
+
+    <!-- Available filieres -->
+    <section class="about-section">
+      <h2 data-i18n="filieres_title">Filières disponibles</h2>
+      <div class="filiere-grid" id="filiereGrid">
+        <div class="filiere-skeleton"><div class="skel"></div><div class="skel"></div><div class="skel"></div></div>
+      </div>
+    </section>
+
+    <!-- Resource types -->
+    <section class="about-section">
+      <h2 data-i18n="types_title">Types de ressources</h2>
+      <div class="types-grid">
+        <div class="type-card"><div class="type-icon">📖</div><div class="type-name">Cours</div><div class="type-sub" data-i18n="type_cours_sub">Polycopiés et résumés</div></div>
+        <div class="type-card"><div class="type-icon">✏️</div><div class="type-name">TDs</div><div class="type-sub" data-i18n="type_tds_sub">Travaux dirigés &amp; exercices</div></div>
+        <div class="type-card"><div class="type-icon">🔬</div><div class="type-name">TPs</div><div class="type-sub" data-i18n="type_tps_sub">Travaux pratiques</div></div>
+        <div class="type-card"><div class="type-icon">📝</div><div class="type-name">Examens</div><div class="type-sub" data-i18n="type_exams_sub">Examens &amp; contrôles</div></div>
+      </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="about-cta">
+      <h2 data-i18n="cta_title">Tu as des fichiers à partager ?</h2>
+      <p data-i18n="cta_sub">Aide tes camarades en contribuant tes cours, TDs ou examens.</p>
+      <a href="contact.html" class="cta-btn" data-i18n="cta_btn">Nous contacter →</a>
+    </section>
+
+  </main>
+
+  <footer>
+    <div style="font-weight: 500; font-size: 15px; margin-bottom: 6px; color: var(--text);">Qrayti.ma</div>
+    <div style="margin-bottom: 12px;"><span data-i18n="footer_credits">Créé par FSDM Students pour les étudiants FSDM</span></div>
+    <a href="https://github.com/YassineRaffed/QraytiCMS" target="_blank" style="color: var(--muted); text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 6px;">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+      Code Source Libre
+    </a>
+  </footer>
+
+  <script src="assets/js/shared.js?v=1"></script>
+  <script src="assets/js/about.js?v=1"></script>
+</body>
+</html>

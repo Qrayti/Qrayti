@@ -1,0 +1,294 @@
+/* =====================================================================
+ * QRAYTI.MA - BROWSE PAGE CSS
+ * ===================================================================== */
+
+.browse-page {
+  flex: 1;
+  width: 100%;
+}
+
+/* Hero section removed per request */
+.breadcrumb-section {
+  display: flex !important;
+  justify-content: flex-start !important;
+  padding: 12px 48px !important;
+  background: var(--nav-bg) !important;
+  border-bottom: 1px solid var(--border) !important;
+  position: sticky !important;
+  top: 80px !important;
+  z-index: 10;
+}
+
+.breadcrumbs {
+  display: flex !important;
+  align-items: center !important;
+  gap: 20px !important;
+}
+
+/* Blue for clickable items */
+.breadcrumb-item {
+  color: var(--blue) !important;
+  font-family: 'DM Sans', sans-serif !important;
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  background: none !important;
+  border: none !important;
+  padding: 0 !important;
+  cursor: pointer !important;
+  text-decoration: none !important;
+}
+
+.breadcrumb-item:not(.active):hover {
+  text-decoration: underline !important;
+}
+
+/* WHITE/TEXT for the last item (Active) */
+.breadcrumb-item.active {
+  color: var(--text) !important;
+  /* This is White in Dark mode */
+  font-weight: 700 !important;
+  /* Bold like your photo */
+  cursor: default !important;
+  text-decoration: none !important;
+}
+
+.breadcrumb-sep {
+  color: var(--muted) !important;
+  margin: 0 4px;
+}
+
+/* ── Browse Grid ── */
+.browse-content {
+  padding: 40px 0 100px;
+}
+
+.browse-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 16px;
+  margin-right: 180px;
+  margin-left: 180px;
+  padding: 30px 0px;
+}
+
+.browse-card {
+  background: var(--card);
+  border: 3.2px solid var(--border);
+  border-radius: 16px;
+  padding: 24px 16px;
+  text-align: center;
+  cursor: pointer;
+  transition: transform 3.2s, box-shadow 0.2s, border-color 0.2s;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  opacity: 0;
+  animation: dropIn 1.45s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+@keyframes dropIn {
+  0% {
+    opacity: 0;
+    transform: translateY(30px) scale(0.96);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.browse-card:hover {
+  transform: translateY(-4px);
+  border-color: var(--blue);
+  box-shadow: 0 10px 28px rgba(26, 86, 219, 0.14);
+}
+
+/* Card Types Borders */
+.browse-card.type-cours {
+  border-color: #bfdbfe;
+}
+
+.browse-card.type-tds {
+  border-color: #fde68a;
+}
+
+.browse-card.type-tps {
+  border-color: #fed7aa;
+}
+
+.browse-card.type-exams {
+  border-color: #fecaca;
+}
+
+.browse-card.type-cours:hover {
+  background: #fef2f200;
+  border-color: #1a56db;
+}
+
+.browse-card.type-tds:hover {
+  background: #fef2f200;
+  border-color: #eab308;
+}
+
+.browse-card.type-tps:hover {
+  background: #fef2f200;
+  border-color: #f97316;
+}
+
+.browse-card.type-exams:hover {
+  background: #fef2f200;
+  border-color: #dc2626;
+}
+
+.card-icon {
+  font-size: 32px;
+  margin-bottom: 12px;
+}
+
+.card-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 6px;
+}
+
+.card-subtitle {
+  font-size: 12px;
+  color: var(--muted);
+  font-weight: 600;
+}
+
+/* ── Result List (Shared style with Index) ── */
+.files-list-area {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.results-count {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--muted);
+  margin-bottom: 20px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.results-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.result-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 24px;
+  background: var(--card);
+  border: 1.5px solid var(--border);
+  border-radius: 16px;
+  text-decoration: none;
+  transition: all 0.2s;
+}
+
+.result-item:hover {
+  border-color: var(--blue);
+  background: var(--blue-light);
+  transform: translateX(5px);
+}
+
+html[dir="rtl"] .result-item:hover {
+  transform: translateX(-5px);
+}
+
+.result-left {
+  flex: 1;
+  min-width: 0;
+}
+
+.result-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 6px;
+}
+
+.result-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.type-badge {
+  font-size: 11px;
+  font-weight: 800;
+  padding: 3px 10px;
+  border-radius: 99px;
+  text-transform: uppercase;
+}
+
+.type-COURS {
+  background: rgba(26, 86, 219, 0.1);
+  color: var(--blue);
+}
+
+.type-TDS {
+  background: rgba(234, 179, 8, 0.1);
+  color: #ca8a04;
+}
+
+.type-TPS {
+  background: rgba(249, 115, 22, 0.1);
+  color: #c2410c;
+}
+
+.type-EXAMS {
+  background: rgba(220, 38, 38, 0.1);
+  color: #b91c1c;
+}
+
+.result-arrow {
+  font-size: 20px;
+  color: var(--muted);
+}
+
+html[dir="rtl"] .result-arrow {
+  transform: scaleX(-1);
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .browse-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .breadcrumb-section {
+    top: 80px;
+  }
+}
+
+/* skeletons */
+.browse-skeleton {
+  height: 200px;
+  background: var(--border);
+  border-radius: 20px;
+  animation: pulse 1.5s infinite ease-in-out;
+}
+
+@keyframes pulse {
+
+  0%,
+  100% {
+    opacity: 0.5;
+  }
+
+  50% {
+    opacity: 0.8;
+  }
+}

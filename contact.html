@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="fr" class="pre-lang">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Qrayti.ma | Contact</title>
+  
+  <!-- CSS Load Order STRICT: shared.css -> page.css -->
+  <link rel="stylesheet" href="assets/css/shared.css?v=1">
+  <link rel="stylesheet" href="assets/css/contact.css?v=1">
+</head>
+<body>
+
+  <!-- Full Overlays (Onboarding / Spots) -->
+  <div class="full-overlay" id="langPickerOverlay">
+    <div class="picker-box">
+      <div class="picker-emoji">🌍</div>
+      <h2 data-i18n="lang_pick_title">Choisissez votre langue</h2>
+      <p data-i18n="lang_pick_sub">Choose your language / اختر لغتك</p>
+      <div class="picker-btns col">
+        <button class="pick-btn row" onclick="pickLang('fr')"><span class="flag">🇫🇷</span> Français</button>
+        <button class="pick-btn row" onclick="pickLang('en')"><span class="flag">🇬🇧</span> English</button>
+        <button class="pick-btn row" onclick="pickLang('ar')"><span class="flag">🇲🇦</span> العربية</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="full-overlay" id="themePickerOverlay">
+    <div class="picker-box">
+      <div class="picker-emoji">👋</div>
+      <h2><span data-i18n="onboard_welcome">Bienvenue sur Qrayti.ma</span></h2>
+      <p><span data-i18n="onboard_sub">Choisis ton thème préféré pour commencer</span></p>
+      <div class="picker-btns">
+        <button class="pick-btn" onclick="pickTheme('light')">
+          <span class="pick-icon">🌤️</span> <span data-i18n="onboard_light">Clair</span>
+        </button>
+        <button class="pick-btn" onclick="pickTheme('dark')">
+          <span class="pick-icon">🌙</span> <span data-i18n="onboard_dark">Sombre</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="spotlight-overlay" id="langSpotlightOverlay" onclick="dismissLangSpotlight()">
+    <div class="spotlight-hole" id="langSpotlightHole"></div>
+    <div class="spotlight-tooltip" id="langSpotlightTooltip">
+      <p data-i18n="spotlight_lang">Tu peux changer la langue ici 🌍</p>
+      <button class="spotlight-gotit" data-i18n="gotit">OK, compris !</button>
+    </div>
+  </div>
+
+  <div class="spotlight-overlay" id="spotlightOverlay" onclick="dismissSpotlight()">
+    <div class="spotlight-hole" id="spotlightHole"></div>
+    <div class="spotlight-tooltip" id="spotlightTooltip">
+      <p data-i18n="spotlight_theme">Tu peux toujours changer le thème ici 🎨</p>
+      <button class="spotlight-gotit" data-i18n="gotit">OK, compris !</button>
+    </div>
+  </div>
+
+  <!-- Navbar -->
+  <nav>
+    <a href="index.html" class="logo"><img src="assets/icons/logo.png" alt="Qrayti.ma"></a>
+    <div class="nav-links">
+      <a href="index.html"><span data-i18n="nav_home">Accueil</span></a>
+      <a href="browse.html"><span data-i18n="nav_browse">Parcourir</span></a>
+      <a href="about.html"><span data-i18n="nav_about">À propos</span></a>
+      <a href="contact.html" class="active"><span data-i18n="nav_contact">Contact</span></a>
+    </div>
+    <div class="nav-right">
+      <div class="lang-wrapper" id="langWrapper">
+        <button class="lang-nav-btn" id="langBtn" onclick="toggleLangMenu()">🇫🇷</button>
+        <div class="lang-nav-dropdown" id="langDropdown">
+           <button onclick="switchLang('fr')">🇫🇷 Français</button>
+           <button onclick="switchLang('en')">🇬🇧 English</button>
+           <button onclick="switchLang('ar')">🇲🇦 العربية</button>
+        </div>
+      </div>
+      <button class="dark-toggle" onclick="toggleDark()" id="darkBtn">🌙</button>
+      <div class="hamburger" onclick="toggleMobileMenu()"><span></span><span></span><span></span></div>
+    </div>
+  </nav>
+
+  <!-- Mobile Menu -->
+  <div class="mobile-menu" id="mobileMenu">
+    <a href="index.html"><span data-i18n="nav_home">Accueil</span></a>
+    <a href="browse.html"><span data-i18n="nav_browse">Parcourir</span></a>
+    <a href="about.html"><span data-i18n="nav_about">À propos</span></a>
+    <a href="contact.html" class="active"><span data-i18n="nav_contact">Contact</span></a>
+  </div>
+
+  <!-- Page Content -->
+  <main class="contact-page">
+    <div class="contact-header">
+      <div class="contact-badge">📌 <span data-i18n="nav_contact">Contact</span></div>
+      <h1 data-i18n="contact_h1">Contactez-nous</h1>
+      <p data-i18n="contact_p1">Tu as une question, une suggestion ou un document à partager ? N'hésite pas à nous contacter.</p>
+    </div>
+
+    <!-- Skeleton rows shown while loading -->
+    <div class="contact-list" id="loadingContacts">
+      <div class="contact-skeleton"><div class="skel"></div><div class="skel"></div><div class="skel"></div></div>
+    </div>
+
+    <!-- Cards rendered here by contact.js -->
+    <div id="contactGrid"></div>
+
+    <div id="contactError" class="contact-error" style="display:none;"></div>
+  </main>
+
+  <!-- Footer -->
+  <footer>
+    <div style="font-weight: 500; font-size: 15px; margin-bottom: 6px; color: var(--text);">Qrayti.ma</div>
+    <div style="margin-bottom: 12px;"><span data-i18n="footer_credits">Créé par FSDM Students pour les étudiants FSDM</span></div>
+    <a href="https://github.com/YassineRaffed/QraytiCMS" target="_blank" style="color: var(--muted); text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 6px;">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg> 
+      Code Source Libre
+    </a>
+  </footer>
+
+  <!-- JS Load Order STRICT: shared.js -> page.js -->
+  <script src="assets/js/shared.js?v=1"></script>
+  <script src="assets/js/contact.js?v=1"></script>
+</body>
+</html>
