@@ -207,6 +207,7 @@ html[dir='rtl'] .lang-nav-dropdown { right:auto; left:0; }
 .pdf-btn.primary { background:var(--blue); color:white; border-color:var(--blue); }
 .pdf-btn.primary:hover { background:#1447c0; }
 .pdf-modal iframe { flex:1; border:none; width:100%; }
+#pdfFrame { overflow: auto; -webkit-overflow-scrolling: touch; }
 .pdf-loading { flex:1; display:flex; align-items:center; justify-content:center; color:var(--muted); font-size:14px; }
 @media(max-width:640px) { .pdf-modal { width:100vw; height:100vh; border-radius:0; } }
 
