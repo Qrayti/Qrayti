@@ -266,10 +266,14 @@ html[dir="rtl"] .result-arrow {
 @media (max-width: 768px) {
   .browse-grid {
     grid-template-columns: 1fr;
+    margin-left: 20px;
+    margin-right: 20px;
   }
 
   .breadcrumb-section {
     top: 80px;
+    padding-left: 20px;
+    padding-right: 20px;
   }
 }
 
