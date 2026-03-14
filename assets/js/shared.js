@@ -4,7 +4,7 @@
  * ===================================================================== */
 
 window.QRAYTI = window.QRAYTI || {};
-const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQFHAdlDqti75ZJ4JiRFOywjFwZo7Gduwp1tdHKYHNEMGZSk56WTQCOx1eTViMSIxon04Kb97hAWouA/pub?gid=0&single=true&output=csv";
+const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSzWc-1Jk1PpAmhKJZCix5r53qCCTHR1ZqaD6B-NuEKEbEFYiE7E8AsxvUcC6CNTFtLUHon4rkV5jF-/pub?gid=0&single=true&output=csv";
 
 // ── 1. GLOBAL CSV FETCHER ──
 function fetchCSV(callback) {
