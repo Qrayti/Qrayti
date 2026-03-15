@@ -482,27 +482,16 @@ html[dir="rtl"] .result-item:hover {
   border-radius: 99px;
   letter-spacing: 0.5px;
   flex-shrink: 0;
+  background: rgba(107, 114, 128, 0.1);
+  color: var(--muted);
 }
 
-.type-COURS {
-  background: rgba(26, 86, 219, 0.1);
-  color: var(--blue);
-}
-
-.type-TDS {
-  background: rgba(234, 179, 8, 0.1);
-  color: #ca8a04;
-}
-
-.type-TPS {
-  background: rgba(249, 115, 22, 0.1);
-  color: #c2410c;
-}
-
-.type-EXAMS {
-  background: rgba(220, 38, 38, 0.1);
-  color: #b91c1c;
-}
+.type-COURS { background: rgba(26, 86, 219, 0.1); color: var(--blue); }
+.type-TDS { background: rgba(234, 179, 8, 0.1); color: #ca8a04; }
+.type-TPS { background: rgba(249, 115, 22, 0.1); color: #c2410c; }
+.type-EXAMS { background: rgba(220, 38, 38, 0.1); color: #b91c1c; }
+.type-VIDEOS { background: rgba(124, 58, 237, 0.1); color: #7c3aed; }
+.type-RESUME { background: rgba(13, 148, 136, 0.1); color: #0d9488; }
 
 .result-arrow {
   color: var(--muted);

@@ -124,6 +124,14 @@
   border-color: #fecaca;
 }
 
+.browse-card.type-videos {
+  border-color: #ddd6fe;
+}
+
+.browse-card.type-resume {
+  border-color: #99f6e4;
+}
+
 .browse-card.type-cours:hover {
   background: #fef2f200;
   border-color: #1a56db;
@@ -142,6 +150,16 @@
 .browse-card.type-exams:hover {
   background: #fef2f200;
   border-color: #dc2626;
+}
+
+.browse-card.type-videos:hover {
+  background: #f5f3ff;
+  border-color: #7c3aed;
+}
+
+.browse-card.type-resume:hover {
+  background: #f0fdfa;
+  border-color: #0d9488;
 }
 
 .card-icon {

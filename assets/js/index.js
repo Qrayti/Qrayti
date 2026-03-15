@@ -99,6 +99,20 @@ function populateFilters(data) {
   const sideSemSelect = document.getElementById('sideFilterSemestre');
   const sideFilSelect = document.getElementById('sideFilterFiliere');
 
+  // Helper to clear and keep placeholder
+  const clearSelect = sel => {
+    if (!sel) return;
+    // Keep only the first option (placeholder)
+    while (sel.options.length > 1) {
+      sel.remove(1);
+    }
+  };
+
+  clearSelect(semSelect);
+  clearSelect(filSelect);
+  clearSelect(sideSemSelect);
+  clearSelect(sideFilSelect);
+
   const createOpt = val => {
     const opt = document.createElement('option');
     opt.value = val; opt.textContent = val;
@@ -140,8 +154,12 @@ window.performSearch = function() {
   const filtered = globalData.filter(r => {
     const matchSem = !fSem || r.semestre === fSem;
     const matchFil = !fFil || r.filiere === fFil;
+    
     let matchTyp = true;
-    if (fTyp) matchTyp = (r.type || '').toUpperCase().includes(fTyp);
+    if (fTyp) {
+      const actualType = detectItemType(r);
+      matchTyp = (actualType === fTyp);
+    }
 
     let matchQ = true;
     if (q) {
@@ -171,11 +189,7 @@ window.performSearch = function() {
     countLabel.textContent = `${filtered.length} ${txt}`;
 
     filtered.forEach(r => {
-      let badgeClass = 'COURS';
-      const upperType = (r.type || '').toUpperCase();
-      if(upperType.includes('TD')) badgeClass = 'TDS';
-      else if(upperType.includes('TP')) badgeClass = 'TPS';
-      else if(upperType.includes('EXAM')) badgeClass = 'EXAMS';
+      let badgeClass = normalizeType(r.type);
 
       const item = document.createElement('a');
       item.className = 'result-item';

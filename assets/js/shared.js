@@ -76,6 +76,76 @@ function parseCSV(text) {
   });
 }
 
+/**
+ * Detects the document type by looking at the entire row.
+ * Prioritizes VIDEO detection across all fields (regardless of column).
+ */
+function detectItemType(r) {
+  if (!r) return 'DOC';
+  
+  // Convert all field values to a single search string
+  const allText = Object.values(r).join(' ').toLowerCase();
+
+  // Broad video detection
+  if (allText.includes('video') || allText.includes('youtu.be') || allText.includes('youtube.com')) {
+    return 'VIDEOS';
+  }
+
+  return normalizeType(r.type);
+}
+
+/**
+ * Normalizes document type strings from Google Sheets.
+ * Handles specific mappings and provides a fallback for unknown types.
+ */
+function normalizeType(t) {
+  if (!t) return 'DOC';
+  const raw = t.trim();
+  const up = raw.toUpperCase();
+
+  // "Video" is now handled by detectItemType, but kept here for type-column specific hits
+  if (up.includes('VIDEO')) return 'VIDEOS';
+  if (up.includes('TD')) return 'TDS';
+  if (up.includes('TP')) return 'TPS';
+  if (up.includes('EXAM')) return 'EXAMS';
+
+  // Normalize "resume" ignoring accents
+  const normalized = raw.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+  if (normalized.includes('resume')) return 'RESUME';
+
+  return raw; // Fallback to sheet value (Dynamic Type)
+}
+
+/**
+ * Returns a human-readable label for a normalized type string.
+ */
+function typeLabel(t) {
+  const labels = { 
+    VIDEOS: 'Vidéos', 
+    TDS: 'TDs', 
+    TPS: 'TPs', 
+    EXAMS: 'Exams', 
+    RESUME: 'Résumés',
+    DOC: 'Document'
+  };
+  return labels[t] || t; // Use original if not in mapping
+}
+
+/**
+ * Returns an emoji icon for a normalized type string.
+ */
+function typeIcon(t) {
+  const icons = { 
+    VIDEOS: '🎬', 
+    TDS: '✏️', 
+    TPS: '🔬', 
+    EXAMS: '📝', 
+    RESUME: '📋',
+    DOC: '📄'
+  };
+  return icons[t] || '📄';
+}
+
 // ── 2. TRANSLATION (i18n) ENGINE ──
 let LANGS = {};
 

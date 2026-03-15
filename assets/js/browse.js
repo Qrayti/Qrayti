@@ -24,22 +24,6 @@ window.showPage = function () {
   });
 };
 
-function normalizeType(t) {
-  const type = (t || '').trim().toUpperCase();
-  if (type.includes('TD')) return 'TDS';
-  if (type.includes('TP')) return 'TPS';
-  if (type.includes('EXAM')) return 'EXAMS';
-  return 'COURS';
-}
-
-function typeLabel(t) {
-  return { COURS: 'Cours', TDS: 'TDs', TPS: 'TPs', EXAMS: 'Exams' }[t] || t;
-}
-
-function typeIcon(t) {
-  return { COURS: '📘', TDS: '✏️', TPS: '🔬', EXAMS: '📝' }[t] || '📄';
-}
-
 // ── 3. RENDERING ENGINE ──
 function renderCurrentLevel() {
   const grid = document.getElementById('browseGrid');
@@ -87,15 +71,16 @@ function renderCurrentLevel() {
     });
 
   } else if (currentState.level === 'type') {
-    const types = [...new Set(allDocuments.filter(d => d.semestre === currentState.sem && d.filiere === currentState.fil && d.module === currentState.mod).map(d => normalizeType(d.type)))];
+    const types = [...new Set(allDocuments.filter(d => d.semestre === currentState.sem && d.filiere === currentState.fil && d.module === currentState.mod).map(d => detectItemType(d)))];
     types.forEach((tp, i) => {
-      const count = allDocuments.filter(d => d.semestre === currentState.sem && d.filiere === currentState.fil && d.module === currentState.mod && normalizeType(d.type) === tp).length;
+      const count = allDocuments.filter(d => d.semestre === currentState.sem && d.filiere === currentState.fil && d.module === currentState.mod && detectItemType(d) === tp).length;
       const card = createCard(typeIcon(tp), typeLabel(tp), `${count} ${count > 1 ? t('file_plural') : t('file_singular')}`, i, () => {
         currentState.level = 'files';
         currentState.type = tp;
         renderCurrentLevel();
       });
-      card.classList.add(`type-${tp.toLowerCase()}`);
+      const typeClass = tp.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]/g, '');
+      card.classList.add(`type-${typeClass}`);
       grid.appendChild(card);
     });
 
@@ -129,10 +114,11 @@ function renderFiles() {
     d.semestre === currentState.sem &&
     d.filiere === currentState.fil &&
     d.module === currentState.mod &&
-    normalizeType(d.type) === currentState.type
+    detectItemType(d) === currentState.type
   );
 
   list.innerHTML = '';
+// ... (omitting rest for brevity, will apply via multi if needed)
   if (files.length === 0) {
     noFiles.style.display = 'block';
     count.innerHTML = '';
