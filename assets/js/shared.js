@@ -51,7 +51,8 @@ function parseCSV(text) {
     'type': 'type',
     'title': 'titre',
     'driveid': 'id',
-    'url': 'lienURL'
+    'url': 'lienURL',
+    'description': 'description'
   };
 
   const rawHeaders = lines[0].split(',').map(h => h.trim().toLowerCase().replace(/"/g, ''));
