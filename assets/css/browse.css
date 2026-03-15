@@ -11,18 +11,30 @@
 .breadcrumb-section {
   display: flex !important;
   justify-content: flex-start !important;
-  padding: 12px 48px !important;
+  padding: 12px 20px !important; /* Reduced for mobile */
   background: var(--nav-bg) !important;
   border-bottom: 1px solid var(--border) !important;
   position: sticky !important;
   top: 80px !important;
   z-index: 10;
+  overflow-x: auto !important; /* Enable scroll */
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Hide scrollbar for breadcrumbs */
+.breadcrumb-section::-webkit-scrollbar {
+  display: none;
+}
+.breadcrumb-section {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 
 .breadcrumbs {
   display: flex !important;
   align-items: center !important;
-  gap: 20px !important;
+  gap: 12px !important; /* Tighter gap for mobile */
+  white-space: nowrap !important; /* Prevent wrapping */
 }
 
 /* Blue for clickable items */
@@ -64,11 +76,11 @@
 
 .browse-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-  gap: 16px;
-  margin-right: 180px;
-  margin-left: 180px;
-  padding: 30px 0px;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); /* Slightly smaller min-width for mobile */
+  gap: 12px;
+  margin: 0 auto;
+  max-width: 1200px;
+  padding: 20px 16px;
 }
 
 .browse-card {
@@ -283,15 +295,21 @@ html[dir="rtl"] .result-arrow {
 /* ── Responsive ── */
 @media (max-width: 768px) {
   .browse-grid {
-    grid-template-columns: 1fr;
-    margin-left: 20px;
-    margin-right: 20px;
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+    padding: 16px 12px;
   }
 
   .breadcrumb-section {
-    top: 80px;
-    padding-left: 20px;
-    padding-right: 20px;
+    top: 70px; /* Adjust based on new nav height if needed */
+    padding: 10px 16px !important;
+  }
+  
+  .card-icon {
+    font-size: 28px;
+  }
+  
+  .card-title {
+    font-size: 14px;
   }
 }
 

@@ -193,8 +193,13 @@ html[dir='rtl'] .lang-nav-dropdown { right:auto; left:0; }
   padding:14px 20px; border-bottom:1px solid var(--border); flex-shrink:0; 
 }
 .pdf-modal-title { 
-  font-size:14px; font-weight:600; color:var(--text); white-space:nowrap; 
-  overflow:hidden; text-overflow:ellipsis; max-width:70%; 
+  font-size:14px; font-weight:700; color:var(--text); white-space:nowrap; 
+  overflow:hidden; text-overflow:ellipsis; max-width:65%; 
+}
+@media(max-width: 480px) {
+  .pdf-modal-title { font-size: 13px; max-width: 55%; }
+  .pdf-modal-header { padding: 10px 12px; }
+  .pdf-btn { padding: 6px 10px; font-size: 12px; }
 }
 .pdf-modal-actions { display:flex; gap:8px; flex-shrink:0; }
 .pdf-btn { 
@@ -207,7 +212,20 @@ html[dir='rtl'] .lang-nav-dropdown { right:auto; left:0; }
 .pdf-btn.primary { background:var(--blue); color:white; border-color:var(--blue); }
 .pdf-btn.primary:hover { background:#1447c0; }
 .pdf-iframe-wrapper { flex:1; position:relative; overflow:hidden; }
-.pdf-iframe-wrapper iframe { position:absolute; top:-50px; left:0; width:100%; height:calc(100% + 50px); border:none; }
+.pdf-iframe-wrapper iframe { 
+  position:absolute; 
+  top:0; /* Removed negative offset that might cause clipping on some devices */
+  left:0; 
+  width:100%; 
+  height:100%; 
+  border:none; 
+}
+@media(max-width: 640px) {
+  .pdf-iframe-wrapper iframe {
+     top: 0;
+     height: 100%;
+  }
+}
 #pdfFrame { overflow: auto; -webkit-overflow-scrolling: touch; }
 #pdfFrame::-webkit-scrollbar {
   width: 12px;

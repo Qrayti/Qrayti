@@ -461,9 +461,19 @@ html[dir="rtl"] .result-item:hover {
   font-weight: 700;
   color: var(--text);
   margin-bottom: 6px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  /* Allow wrapping on mobile, truncate on desktop if necessary */
+}
+
+@media(max-width: 480px) {
+  .result-item {
+    padding: 14px 16px;
+  }
+  .result-title {
+    font-size: 14px;
+    white-space: normal; /* Allow wrap on mobile */
+    overflow: visible;
+    text-overflow: clip;
+  }
 }
 
 .result-meta {
