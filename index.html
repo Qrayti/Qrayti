@@ -7,6 +7,7 @@
   <base href="./">
   <link rel="stylesheet" href="assets/css/shared.css?v=1">
   <link rel="stylesheet" href="assets/css/index.css?v=1">
+  <link rel="stylesheet" href="assets/css/chatbot.css?v=1">
 </head>
 <body>
 
@@ -216,8 +217,27 @@
     </a>
   </footer>
 
+  <!-- AI Chatbot UI -->
+  <button class="chatbot-trigger" id="chatbotTrigger" onclick="toggleChatbot()">✨</button>
+  
+  <div class="chatbot-window" id="chatbotWindow">
+    <div class="chatbot-header">
+      <div class="chatbot-header-info">
+        <div class="chatbot-status"></div>
+        <h3>Qrayti AI Assistant</h3>
+      </div>
+      <button onclick="toggleChatbot()" style="background:none; border:none; color:white; cursor:pointer; font-size:18px;">✕</button>
+    </div>
+    <div class="chatbot-messages" id="chatbotMessages"></div>
+    <div class="chatbot-input-area">
+      <input type="text" id="chatbotInput" placeholder="Posez votre question...">
+      <button class="chatbot-send" id="chatbotSendBtn" onclick="handleChatSend()">→</button>
+    </div>
+  </div>
+
   <script src="assets/js/shared.js?v=1"></script>
   <script src="assets/js/index.js?v=1"></script>
+  <script src="assets/js/chatbot.js?v=1"></script>
   <script>
     const lang = localStorage.getItem('lang');
     if (!lang) {

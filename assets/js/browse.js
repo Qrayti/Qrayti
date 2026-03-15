@@ -42,9 +42,7 @@ function renderCurrentLevel() {
     sems.forEach((s, i) => {
       const count = allDocuments.filter(d => d.semestre === s).length;
       grid.appendChild(createCard('📅', s, `${count} ${count > 1 ? t('file_plural') : t('file_singular')}`, i, () => {
-        currentState.level = 'fil';
-        currentState.sem = s;
-        renderCurrentLevel();
+        navigateLevel({ level: 'fil', sem: s });
       }));
     });
 
@@ -53,9 +51,7 @@ function renderCurrentLevel() {
     fils.forEach((f, i) => {
       const count = allDocuments.filter(d => d.semestre === currentState.sem && d.filiere === f).length;
       grid.appendChild(createCard('🎓', f, `${count} ${count > 1 ? t('file_plural') : t('file_singular')}`, i, () => {
-        currentState.level = 'mod';
-        currentState.fil = f;
-        renderCurrentLevel();
+        navigateLevel({ level: 'mod', fil: f });
       }));
     });
 
@@ -64,9 +60,7 @@ function renderCurrentLevel() {
     mods.forEach((m, i) => {
       const count = allDocuments.filter(d => d.semestre === currentState.sem && d.filiere === currentState.fil && d.module === m).length;
       grid.appendChild(createCard('📖', m, `${count} ${count > 1 ? t('file_plural') : t('file_singular')}`, i, () => {
-        currentState.level = 'type';
-        currentState.mod = m;
-        renderCurrentLevel();
+        navigateLevel({ level: 'type', mod: m });
       }));
     });
 
@@ -75,9 +69,7 @@ function renderCurrentLevel() {
     types.forEach((tp, i) => {
       const count = allDocuments.filter(d => d.semestre === currentState.sem && d.filiere === currentState.fil && d.module === currentState.mod && detectItemType(d) === tp).length;
       const card = createCard(typeIcon(tp), typeLabel(tp), `${count} ${count > 1 ? t('file_plural') : t('file_singular')}`, i, () => {
-        currentState.level = 'files';
-        currentState.type = tp;
-        renderCurrentLevel();
+        navigateLevel({ level: 'files', type: tp });
       });
       const typeClass = tp.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]/g, '');
       card.classList.add(`type-${typeClass}`);
@@ -118,7 +110,6 @@ function renderFiles() {
   );
 
   list.innerHTML = '';
-// ... (omitting rest for brevity, will apply via multi if needed)
   if (files.length === 0) {
     noFiles.style.display = 'block';
     count.innerHTML = '';
@@ -166,7 +157,6 @@ function updateBreadcrumbs() {
   const sep = '<span class="breadcrumb-sep">›</span>';
   let parts = [];
 
-  // Build the levels based on current state
   parts.push({ label: t('nav_home'), lvl: 'sem' });
 
   if (currentState.sem) parts.push({ label: currentState.sem, lvl: 'fil' });
@@ -174,31 +164,49 @@ function updateBreadcrumbs() {
   if (currentState.mod) parts.push({ label: currentState.mod, lvl: 'type' });
   if (currentState.type) parts.push({ label: typeLabel(currentState.type), lvl: 'files' });
 
-  // Map parts to buttons and join with separators
   bc.innerHTML = parts.map((p, i) => {
     const isLast = (i === parts.length - 1);
     const className = isLast ? "breadcrumb-item active" : "breadcrumb-item";
-    // Only the clickable (non-last) items get the onclick event
-    const action = isLast ? "" : `onclick="navigateLevel('${p.lvl}')"`;
-
+    const action = isLast ? "" : `onclick="navigateLevel({ level: '${p.lvl}', jump: true })"`;
     return `<button class="${className}" ${action}>${p.label}</button>`;
   }).join(sep);
 }
 
-window.navigateLevel = function (lvl) {
-  currentState.level = lvl;
-  // Reset states below the target level
-  if (lvl === 'sem') { currentState.sem = null; currentState.fil = null; currentState.mod = null; currentState.type = null; }
-  if (lvl === 'fil') { currentState.fil = null; currentState.mod = null; currentState.type = null; }
-  if (lvl === 'mod') { currentState.mod = null; currentState.type = null; }
-  if (lvl === 'type') { currentState.type = null; }
+// --- Navigation Logic ---
+window.navigateLevel = function (params, isPopState = false) {
+  // If it's a "jump" or resetting to top, clear lower states
+  if (params.jump || params.level === 'sem') {
+    if (params.level === 'sem') { currentState.sem = null; currentState.fil = null; currentState.mod = null; currentState.type = null; }
+    if (params.level === 'fil') { currentState.fil = null; currentState.mod = null; currentState.type = null; }
+    if (params.level === 'mod') { currentState.mod = null; currentState.type = null; }
+    if (params.level === 'type') { currentState.type = null; }
+  }
+
+  // Apply new parameters
+  Object.assign(currentState, params);
+  delete currentState.jump; 
+
+  // History management
+  if (!isPopState) {
+    const stateCopy = JSON.parse(JSON.stringify(currentState));
+    history.pushState({ state: stateCopy }, "", "");
+  }
+  
   renderCurrentLevel();
 };
-window.navigateLevel = function (lvl) {
-  currentState.level = lvl;
-  if (lvl === 'sem') { currentState.sem = null; currentState.fil = null; currentState.mod = null; currentState.type = null; }
-  if (lvl === 'fil') { currentState.fil = null; currentState.mod = null; currentState.type = null; }
-  if (lvl === 'mod') { currentState.mod = null; currentState.type = null; }
-  if (lvl === 'type') { currentState.type = null; }
-  renderCurrentLevel();
-};
+
+window.addEventListener('popstate', (event) => {
+  if (event.state && event.state.state) {
+    currentState = JSON.parse(JSON.stringify(event.state.state));
+    renderCurrentLevel();
+  } else {
+    // Fallback to home if state is missing
+    window.location.reload(); // Hard reset if history is lost
+  }
+});
+
+// Force-init history state on startup
+(function initHistory() {
+  const initialState = JSON.parse(JSON.stringify(currentState));
+  history.replaceState({ state: initialState }, "", "");
+})();
