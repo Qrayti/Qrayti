@@ -8,7 +8,7 @@ window.QRAYTI.activeFileId = null; // Track currently open PDF
 const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSzWc-1Jk1PpAmhKJZCix5r53qCCTHR1ZqaD6B-NuEKEbEFYiE7E8AsxvUcC6CNTFtLUHon4rkV5jF-/pub?gid=0&single=true&output=csv";
 
 // Cache version — bump this whenever the sheet structure changes
-const CSV_CACHE_KEY = 'csv_cache_v3';
+const CSV_CACHE_KEY = 'csv_cache_v4';
 
 // ── 1. GLOBAL CSV FETCHER ──
 function fetchCSV(callback) {
@@ -40,143 +40,111 @@ function fetchCSV(callback) {
 }
 
 /**
- * STRICT column-position parser.
- * 
- * Sheet structure (fixed):
- *   [0] Department  — ignored (not needed for UI)
- *   [1] Filiere     → filiere
- *   [2] Semester    → semestre
- *   [3] Module      → module
- *   [4] Professor   → professeur
- *   [5] Type        → type
- *   [6] Title       → titre
- *   [7] DriveID     → id
- *   [8+] Description, Status, Update Date, Update Info — COMPLETELY IGNORED
- * 
- * This uses position-based extraction only, so extra columns can NEVER
- * contaminate the UI data.
+ * ROBUST character-by-character CSV Parser.
  */
 function parseCSV(text) {
-  const rawLines = text.trim().split(/\r?\n/);
-  if (rawLines.length < 2) return [];
+  if (!text) return [];
+  
+  const rows = [];
+  let currentRow = [];
+  let currentCell = '';
+  let inQuotes = false;
+  
+  for (let i = 0; i < text.length; i++) {
+    const char = text[i];
+    const nextChar = text[i + 1];
 
-  // Skip the header row (index 0), parse from row 1 onward
-  return rawLines.slice(1).map(line => {
-    // Robust CSV split that respects quoted fields containing commas
-    const cols = splitCSVLine(line);
-
-    const titre = cleanCell(cols[6]);
-    const id = cleanCell(cols[7]);
-
-    // Skip rows that have no title and no drive ID — they're empty/junk rows
-    if (!titre && !id) return null;
-
-    return {
-      filiere: cleanCell(cols[1]),
-      semestre: cleanCell(cols[2]),
-      module: cleanCell(cols[3]),
-      professeur: cleanCell(cols[4]),
-      type: cleanCell(cols[5]),
-      titre: titre,
-      id: id,
-      // columns [8]+ are intentionally NOT read
-    };
-  }).filter(Boolean); // remove null rows
-}
-
-/** Splits a CSV line respecting double-quoted fields */
-function splitCSVLine(line) {
-  const result = [];
-  let cur = '', inQ = false;
-  for (let i = 0; i < line.length; i++) {
-    const ch = line[i];
-    if (ch === '"') {
-      // Handle escaped quotes ("")
-      if (inQ && line[i + 1] === '"') { cur += '"'; i++; }
-      else inQ = !inQ;
-    } else if (ch === ',' && !inQ) {
-      result.push(cur);
-      cur = '';
+    if (inQuotes) {
+      if (char === '"') {
+        if (nextChar === '"') {
+          currentCell += '"'; // Escaped quote
+          i++; 
+        } else {
+          inQuotes = false; // End of quotes
+        }
+      } else {
+        currentCell += char; // Append everything inside quotes
+      }
     } else {
-      cur += ch;
+      if (char === '"') {
+        inQuotes = true;
+      } else if (char === ',') {
+        if (currentRow.length < 8) currentRow.push(currentCell.trim());
+        currentCell = '';
+      } else if (char === '\n' || (char === '\r' && nextChar === '\n')) {
+        if (currentRow.length < 8) currentRow.push(currentCell.trim());
+        if (currentRow.length > 0) rows.push(currentRow);
+        currentRow = [];
+        currentCell = '';
+        if (char === '\r') i++;
+      } else {
+        currentCell += char;
+      }
     }
   }
-  result.push(cur);
-  return result;
-}
 
-/** Removes surrounding quotes and whitespace from a cell value */
-function cleanCell(val) {
-  if (val === undefined || val === null) return '';
-  return String(val).trim().replace(/^"|"$/g, '').trim();
-}
-
-/**
- * Detects the document type.
- * ONLY checks the 'type' column and the 'id' column for YouTube links.
- * NEVER touches description or other metadata columns.
- */
-function detectItemType(r) {
-  if (!r) return 'DOC';
-
-  const typeVal = (r.type || '').toLowerCase();
-  const idVal = (r.id || '').toLowerCase();
-
-  if (idVal.includes('youtu') || typeVal.includes('video')) {
-    return 'VIDEOS';
+  if (currentCell || currentRow.length > 0) {
+    if (currentRow.length < 8) currentRow.push(currentCell.trim());
+    rows.push(currentRow);
   }
 
-  return normalizeType(r.type);
+  if (rows.length < 2) return [];
+
+  return rows.slice(1).map(row => {
+    const titre = (row[6] || '').replace(/^"|"$/g, '').trim();
+    const id = (row[7] || '').replace(/^"|"$/g, '').trim();
+    if (!titre && !id) return null;
+
+    let preType = normalizeType(row[5]);
+    if (id.includes('youtu') || preType === 'VIDEOS') preType = 'VIDEOS';
+
+    return {
+      filiere: (row[1] || '').replace(/^"|"$/g, '').trim(),
+      semestre: (row[2] || '').replace(/^"|"$/g, '').trim(),
+      module: (row[3] || '').replace(/^"|"$/g, '').trim(),
+      professeur: (row[4] || '').replace(/^"|"$/g, '').trim(),
+      type: preType,
+      titre: titre,
+      id: id
+    };
+  }).filter(Boolean);
 }
 
-/**
- * Normalizes document type strings from Google Sheets.
- * Handles specific mappings and provides a fallback for unknown types.
- */
+function detectItemType(r) {
+  return r && r.type ? r.type : 'OTHER';
+}
+
 function normalizeType(t) {
-  if (!t) return 'DOC';
-  const raw = t.trim();
+  if (!t) return 'OTHER';
+  const raw = String(t).trim();
   const up = raw.toUpperCase();
 
-  // "Video" is now handled by detectItemType, but kept here for type-column specific hits
+  if (up.includes('TD')) return 'TD';
+  if (up.includes('TP')) return 'TP';
+  if (up.includes('COURS')) return 'COURS';
   if (up.includes('VIDEO')) return 'VIDEOS';
-  if (up.includes('TD')) return 'TDS';
-  if (up.includes('TP')) return 'TPS';
-  if (up.includes('EXAM')) return 'EXAMS';
-
-  // Normalize "resume" ignoring accents
+  if (up.includes('EXAM')) return 'EXAM';
+  
   const normalized = raw.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
-  if (normalized.includes('resume')) return 'RESUME';
+  if (normalized.includes('resume')) return 'Résumé';
 
-  return raw; // Fallback to sheet value (Dynamic Type)
+  return 'OTHER';
 }
 
-/**
- * Returns a human-readable label for a normalized type string.
- */
+
 function typeLabel(t) {
-  const labels = {
-    VIDEOS: 'Vidéos',
-    TDS: 'TDs',
-    TPS: 'TPs',
-    EXAMS: 'Exams',
-    RESUME: 'Résumés',
-    DOC: 'Document'
-  };
-  return labels[t] || t; // Use original if not in mapping
+  return t; 
 }
 
-/**
- * Returns an emoji icon for a normalized type string.
- */
 function typeIcon(t) {
-  const icons = {
-    VIDEOS: '🎬',
-    TDS: '✏️',
-    TPS: '🔬',
-    EXAMS: '📝',
-    RESUME: '📋',
-    DOC: '📄'
+  const icons = { 
+    'VIDEOS': '🎬', 
+    'TD': '✏️', 
+    'TP': '🔬', 
+    'EXAM': '📝', 
+    'Résumé': '📋',
+    'COURS': '📚',
+    'OTHER': '📄'
   };
   return icons[t] || '📄';
 }
