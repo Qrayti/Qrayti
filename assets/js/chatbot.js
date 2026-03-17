@@ -4,12 +4,12 @@
  * ===================================================================== */
 
 let chatHistory = [];
-const DEEPSEEK_API_KEY = "TO_BE_FILLED_BY_USER"; // Placeholder for user request
+// GAS_PROXY_URL will be defined by user
 
 /**
  * Toggle the Chatbot UI
  */
-window.toggleChatbot = function() {
+window.toggleChatbot = function () {
   const win = document.getElementById('chatbotWindow');
   const trigger = document.getElementById('chatbotTrigger');
   if (!win || !trigger) return;
@@ -67,7 +67,7 @@ function addUserMessage(text) {
 /**
  * Handle Send Action
  */
-window.handleChatSend = async function() {
+window.handleChatSend = async function () {
   const input = document.getElementById('chatbotInput');
   const btn = document.getElementById('chatbotSendBtn');
   if (!input || !input.value.trim()) return;
@@ -75,83 +75,125 @@ window.handleChatSend = async function() {
   const userQuery = input.value.trim();
   addUserMessage(userQuery);
   input.value = '';
-  
+
   // Start loading state
   btn.disabled = true;
   btn.innerHTML = '...';
 
   try {
-    const response = await askDeepSeek(userQuery);
-    addBotMessage(response.answer, response.suggestions);
+    showTypingIndicator();
+    const res = await askGemini(userQuery);
+    hideTypingIndicator();
+    addBotMessage(res.answer, res.suggestions);
   } catch (err) {
-    console.error("AI Error:", err);
-    addBotMessage("Désolé, je rencontre une petite difficulté technique. Pouvez-vous reformuler ?");
+    hideTypingIndicator();
+    console.error("CHAT_HANDLE_ERROR:", err);
+    addBotMessage(`⚠️ Erreur : ${err.message}. Vérifiez la console (F12) pour plus de détails.`);
   } finally {
     btn.disabled = false;
     btn.innerHTML = '→';
   }
 };
 
-/**
- * DeepSeek API Integration
- */
-async function askDeepSeek(query) {
-  // 1. Prepare context from globalData (limited to relevant docs to save tokens)
-  // We'll search titles and descriptions locally first to identify potential candidates
+function showTypingIndicator() {
+  hideTypingIndicator(); // Ensure no duplicates
+  const container = document.getElementById('chatbotMessages');
+  if (!container) return;
+  const div = document.createElement('div');
+  div.id = 'typingIndicator';
+  div.className = 'msg msg-ai typing';
+  div.innerHTML = '<span>.</span><span>.</span><span>.</span>';
+  container.appendChild(div);
+  container.scrollTop = container.scrollHeight;
+}
+
+function hideTypingIndicator() {
+  const el = document.getElementById('typingIndicator');
+  if (el) el.remove();
+}
+
+const GAS_PROXY_URL = "https://script.google.com/macros/s/AKfycbwk3YOrBxyWXIJyQ1AKyL277fJRg2QJUq7CUhDt79b2YiLf6gyt30huLXEXzRf0yGHB/exec"; // The URL from your deployed Apps Script Web App
+
+// ...
+
+async function askGemini(query) {
+  // 1. Identify active file context for "In-File Deep Learning"
+  const activeFileId = window.QRAYTI ? window.QRAYTI.activeFileId : null;
+
+  // 2. Prepare metadata context
   const lowerQuery = query.toLowerCase();
   const candidates = (window.globalData || []).filter(d => {
     const text = `${d.titre} ${d.description || ''} ${d.module}`.toLowerCase();
     return lowerQuery.split(' ').some(word => word.length > 3 && text.includes(word));
-  }).slice(0, 5);
+  }).filter(d => d.id).slice(0, 10);
 
-  const contextStr = candidates.map((d, i) => 
+  const contextStr = candidates.map((d, i) =>
     `ID_${i}: ${d.titre} (${detectItemType(d)}) - Desc: ${d.description || 'N/A'}`
   ).join('\n');
 
-  const systemPrompt = `Tu es l'assistant de Qrayti.ma, une plateforme pour les étudiants de la FSDM (Faculté des Sciences Dhar El Mahraz). 
-  Ta mission est de suggérer des fichiers aux étudiants.
-  Voici les documents disponibles correspondant à la requête :\n${contextStr}\n
-  Réponds gentiment en français. Si tu trouves des documents pertinents, cite-les. 
-  À la fin de ta réponse, écris uniquement les indices des documents suggérés sous ce format: SUGGEST:[ID_0, ID_1]`;
-
-  // IF NO API KEY, simulate for now
-  if (DEEPSEEK_API_KEY === "TO_BE_FILLED_BY_USER") {
+  if (GAS_PROXY_URL === "TO_BE_FILLED_BY_USER") {
     return {
-      answer: "Je suis prêt ! Pour activer mon intelligence DeepSeek, veuillez ajouter votre clé API dans le code. En attendant, voici ce que j'ai trouvé localement :",
-      suggestions: candidates
+      answer: "Je suis presque prêt ! Veuillez configurer l'URL de votre Web App dans 'chatbot.js'.",
+      suggestions: candidates.slice(0, 3)
     };
   }
 
-  const res = await fetch("https://api.deepseek.com/v1/chat/completions", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "Authorization": `Bearer ${DEEPSEEK_API_KEY}`
-    },
-    body: JSON.stringify({
-      model: "deepseek-chat",
-      messages: [
-        { role: "system", content: systemPrompt },
-        { role: "user", content: query }
-      ]
-    })
-  });
+  try {
+    const response = await fetch(GAS_PROXY_URL, {
+      method: "POST",
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
+      body: JSON.stringify({
+        query: query,
+        context: contextStr,
+        fileId: activeFileId
+      })
+    });
 
-  const data = await res.json();
-  const aiText = data.choices[0].message.content;
+    const text = await response.text();
+    let data;
+    try {
+      data = JSON.parse(text);
+    } catch (e) {
+      console.error("GAS_RESPONSE_NOT_JSON:", text);
+      throw new Error("Réponse invalide du serveur (CORS ou Erreur Script).");
+    }
 
-  // Extract suggestions from AI text
-  const match = aiText.match(/SUGGEST:\[(.*?)\]/);
-  let finalSuggestions = [];
-  if (match) {
-    const indices = match[1].split(',').map(s => parseInt(s.trim().replace('ID_', '')));
-    finalSuggestions = indices.map(idx => candidates[idx]).filter(Boolean);
+    if (data.error) {
+      console.error("GEMINI_PROXY_ERROR:", data.error);
+      throw new Error(data.error);
+    }
+
+    const aiText = data.answer || "";
+
+    // Parse SUGGEST_JSON:[...] pattern
+    const jsonMatch = aiText.match(/SUGGEST_JSON:(\[.*?\])/);
+    let finalSuggestions = [];
+    let cleanAnswer = aiText;
+
+    if (jsonMatch) {
+      try {
+        const rawSuggestions = JSON.parse(jsonMatch[1]);
+        cleanAnswer = aiText.replace(/SUGGEST_JSON:\[.*?\]/, '').trim();
+
+        // Map suggested IDs back to full globalData objects for complete metadata (icons, etc.)
+        finalSuggestions = rawSuggestions.map(sug => {
+          const fullDoc = (window.globalData || []).find(d => d.id === sug.id);
+          return fullDoc || sug; // Fallback to raw suggestion if not found
+        });
+      } catch (e) {
+        console.error("Failed to parse AI suggestions JSON", e);
+      }
+    }
+
+    return {
+      answer: cleanAnswer,
+      suggestions: finalSuggestions
+    };
+
+  } catch (err) {
+    console.error("ASK_GEMINI_ERROR:", err);
+    throw err;
   }
-
-  return {
-    answer: aiText.replace(/SUGGEST:\[.*?\]/, '').trim(),
-    suggestions: finalSuggestions
-  };
 }
 
 // Bind Enter key
