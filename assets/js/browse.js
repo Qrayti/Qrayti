@@ -20,7 +20,31 @@ window.showPage = function () {
       return;
     }
     allDocuments = parseCSV(csvText);
+
+    // Deep Linking: Check if we have a pending navigation from the chatbot
+    const pendingNav = sessionStorage.getItem('pending_nav');
+    const pendingPdf = sessionStorage.getItem('pending_pdf');
+
+    if (pendingNav) {
+      sessionStorage.removeItem('pending_nav');
+      try {
+        const params = JSON.parse(pendingNav);
+        Object.assign(currentState, params);
+      } catch (e) { console.error("Invalid pending_nav state"); }
+    }
+
     renderCurrentLevel();
+
+    // Auto-open PDF if requested
+    if (pendingPdf) {
+      sessionStorage.removeItem('pending_pdf');
+      try {
+        const pdf = JSON.parse(pendingPdf);
+        setTimeout(() => {
+          if (typeof openPdf === 'function') openPdf(pdf.id, pdf.titre, pdf.isUrl);
+        }, 500);
+      } catch (e) { console.error("Invalid pending_pdf state"); }
+    }
   });
 };
 

@@ -44,12 +44,12 @@ function fetchCSV(callback) {
  */
 function parseCSV(text) {
   if (!text) return [];
-  
+
   const rows = [];
   let currentRow = [];
   let currentCell = '';
   let inQuotes = false;
-  
+
   for (let i = 0; i < text.length; i++) {
     const char = text[i];
     const nextChar = text[i + 1];
@@ -58,7 +58,7 @@ function parseCSV(text) {
       if (char === '"') {
         if (nextChar === '"') {
           currentCell += '"'; // Escaped quote
-          i++; 
+          i++;
         } else {
           inQuotes = false; // End of quotes
         }
@@ -69,10 +69,10 @@ function parseCSV(text) {
       if (char === '"') {
         inQuotes = true;
       } else if (char === ',') {
-        if (currentRow.length < 8) currentRow.push(currentCell.trim());
+        if (currentRow.length < 9) currentRow.push(currentCell.trim());
         currentCell = '';
       } else if (char === '\n' || (char === '\r' && nextChar === '\n')) {
-        if (currentRow.length < 8) currentRow.push(currentCell.trim());
+        if (currentRow.length < 9) currentRow.push(currentCell.trim());
         if (currentRow.length > 0) rows.push(currentRow);
         currentRow = [];
         currentCell = '';
@@ -84,7 +84,7 @@ function parseCSV(text) {
   }
 
   if (currentCell || currentRow.length > 0) {
-    if (currentRow.length < 8) currentRow.push(currentCell.trim());
+    if (currentRow.length < 9) currentRow.push(currentCell.trim());
     rows.push(currentRow);
   }
 
@@ -105,7 +105,8 @@ function parseCSV(text) {
       professeur: (row[4] || '').replace(/^"|"$/g, '').trim(),
       type: preType,
       titre: titre,
-      id: id
+      id: id,
+      description: (row[8] || '').replace(/^"|"$/g, '').trim()
     };
   }).filter(Boolean);
 }
@@ -124,7 +125,7 @@ function normalizeType(t) {
   if (up.includes('COURS')) return 'COURS';
   if (up.includes('VIDEO')) return 'VIDEOS';
   if (up.includes('EXAM')) return 'EXAM';
-  
+
   const normalized = raw.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
   if (normalized.includes('resume')) return 'Résumé';
 
@@ -133,15 +134,15 @@ function normalizeType(t) {
 
 
 function typeLabel(t) {
-  return t; 
+  return t;
 }
 
 function typeIcon(t) {
-  const icons = { 
-    'VIDEOS': '🎬', 
-    'TD': '✏️', 
-    'TP': '🔬', 
-    'EXAM': '📝', 
+  const icons = {
+    'VIDEOS': '🎬',
+    'TD': '✏️',
+    'TP': '🔬',
+    'EXAM': '📝',
     'Résumé': '📋',
     'COURS': '📚',
     'OTHER': '📄'

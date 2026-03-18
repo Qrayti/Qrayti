@@ -72,5 +72,6 @@
   "contact_btn_default": "Ouvrir",
   "browse_badge": "Bibliothèque Numérique",
   "browse_title_main": "Parcourir les ressources",
-  "browse_desc_main": "Sélectionnez votre semestre pour commencer l'exploration."
+  "browse_desc_main": "Sélectionnez votre semestre pour commencer l'exploration.",
+  "ai_error": "Désolé, Qrayti-Bot est temporairement indisponible pour une mise à jour rapide. Réessayez dans 2 minutes ! 🎓"
 }

@@ -31,14 +31,49 @@ function addBotMessage(text, suggestions = []) {
 
   const msgDiv = document.createElement('div');
   msgDiv.className = 'msg msg-ai';
-  msgDiv.textContent = text;
+  msgDiv.innerHTML = text.replace(/\n/g, '<br>');
   container.appendChild(msgDiv);
+
+  // Render KaTeX for Math
+  if (window.renderMathInElement) {
+    renderMathInElement(msgDiv, {
+      delimiters: [
+        { left: '$$', right: '$$', display: true },
+        { left: '$', right: '$', display: false },
+        { left: '\\(', right: '\\)', display: false },
+        { left: '\\[', right: '\\]', display: true }
+      ],
+      throwOnError: false
+    });
+  }
 
   if (suggestions.length > 0) {
     suggestions.forEach(doc => {
       const sugDiv = document.createElement('div');
       sugDiv.className = 'msg-suggestion';
-      sugDiv.onclick = () => openPdf(doc.id, doc.titre, !!doc.lienURL);
+      sugDiv.onclick = () => {
+        // Prepare navigation parameters
+        const navParams = {
+          level: 'files',
+          sem: doc.semestre,
+          fil: doc.filiere,
+          mod: doc.module,
+          type: doc.type
+        };
+
+        // If on browse.html, navigate instantly. If on index, go to browse.html with params.
+        if (window.location.pathname.includes('browse.html')) {
+          if (typeof window.navigateLevel === 'function') {
+            window.navigateLevel(navParams);
+            setTimeout(() => openPdf(doc.id, doc.titre, !!doc.lienURL), 300);
+          }
+        } else {
+          // Store state for browse page to pick up
+          sessionStorage.setItem('pending_nav', JSON.stringify(navParams));
+          sessionStorage.setItem('pending_pdf', JSON.stringify({ id: doc.id, titre: doc.titre, isUrl: !!doc.lienURL }));
+          window.location.href = 'browse.html';
+        }
+      };
       sugDiv.innerHTML = `
         <div class="msg-suggestion-icon">${typeIcon(detectItemType(doc))}</div>
         <div class="msg-suggestion-title">${doc.titre}</div>
@@ -82,7 +117,7 @@ window.handleChatSend = async function () {
 
   try {
     showTypingIndicator();
-    const res = await askGemini(userQuery);
+    const res = await askAI(userQuery);
     hideTypingIndicator();
     addBotMessage(res.answer, res.suggestions);
   } catch (err) {
@@ -116,19 +151,20 @@ const GAS_PROXY_URL = "https://script.google.com/macros/s/AKfycbwk3YOrBxyWXIJyQ1
 
 // ...
 
-async function askGemini(query) {
-  // 1. Identify active file context for "In-File Deep Learning"
+async function askAI(query) {
   const activeFileId = window.QRAYTI ? window.QRAYTI.activeFileId : null;
+  const currentLang = localStorage.getItem('lang') || 'fr';
 
-  // 2. Prepare metadata context
   const lowerQuery = query.toLowerCase();
+  const words = lowerQuery.split(/\s+/).filter(w => w.length > 2);
+  
   const candidates = (window.globalData || []).filter(d => {
     const text = `${d.titre} ${d.description || ''} ${d.module}`.toLowerCase();
-    return lowerQuery.split(' ').some(word => word.length > 3 && text.includes(word));
-  }).filter(d => d.id).slice(0, 10);
+    return words.some(word => text.includes(word));
+  }).filter(d => d.id).slice(0, 15);
 
   const contextStr = candidates.map((d, i) =>
-    `ID_${i}: ${d.titre} (${detectItemType(d)}) - Desc: ${d.description || 'N/A'}`
+    `[DOC_${i}] ${d.titre} | Type: ${d.type} | Module: ${d.module} | Desc: ${d.description || 'N/A'}`
   ).join('\n');
 
   if (GAS_PROXY_URL === "TO_BE_FILLED_BY_USER") {
@@ -143,9 +179,10 @@ async function askGemini(query) {
       method: "POST",
       headers: { "Content-Type": "text/plain;charset=utf-8" },
       body: JSON.stringify({
-        query: query,
+        message: query,
         context: contextStr,
-        fileId: activeFileId
+        fileId: activeFileId,
+        lang: currentLang
       })
     });
 
@@ -155,17 +192,16 @@ async function askGemini(query) {
       data = JSON.parse(text);
     } catch (e) {
       console.error("GAS_RESPONSE_NOT_JSON:", text);
-      throw new Error("Réponse invalide du serveur (CORS ou Erreur Script).");
+      throw new Error(t('ai_error') || "Service indisponible.");
     }
 
     if (data.error) {
-      console.error("GEMINI_PROXY_ERROR:", data.error);
-      throw new Error(data.error);
+      console.error("AI_PROXY_ERROR:", data.error);
+      throw new Error(t('ai_error') || data.error);
     }
 
-    const aiText = data.answer || "";
+    const aiText = data.reply || "";
 
-    // Parse SUGGEST_JSON:[...] pattern
     const jsonMatch = aiText.match(/SUGGEST_JSON:(\[.*?\])/);
     let finalSuggestions = [];
     let cleanAnswer = aiText;
@@ -175,10 +211,9 @@ async function askGemini(query) {
         const rawSuggestions = JSON.parse(jsonMatch[1]);
         cleanAnswer = aiText.replace(/SUGGEST_JSON:\[.*?\]/, '').trim();
 
-        // Map suggested IDs back to full globalData objects for complete metadata (icons, etc.)
         finalSuggestions = rawSuggestions.map(sug => {
           const fullDoc = (window.globalData || []).find(d => d.id === sug.id);
-          return fullDoc || sug; // Fallback to raw suggestion if not found
+          return fullDoc || sug;
         });
       } catch (e) {
         console.error("Failed to parse AI suggestions JSON", e);
@@ -191,8 +226,8 @@ async function askGemini(query) {
     };
 
   } catch (err) {
-    console.error("ASK_GEMINI_ERROR:", err);
-    throw err;
+    console.error("ASK_AI_ERROR:", err);
+    throw new Error(t('ai_error') || "Service indisponible.");
   }
 }
 
