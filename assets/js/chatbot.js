@@ -1,6 +1,6 @@
 /* =====================================================================
  * QRAYTI.MA - AI CHATBOT LOGIC
- * Powered by DeepSeek API & Local Document Metadata
+ * Powered by GROQ  API & Local Document Metadata
  * ===================================================================== */
 
 let chatHistory = [];
@@ -147,7 +147,7 @@ function hideTypingIndicator() {
   if (el) el.remove();
 }
 
-const GAS_PROXY_URL = "https://script.google.com/macros/s/AKfycbwk3YOrBxyWXIJyQ1AKyL277fJRg2QJUq7CUhDt79b2YiLf6gyt30huLXEXzRf0yGHB/exec"; // The URL from your deployed Apps Script Web App
+const GAS_PROXY_URL = "https://script.google.com/macros/s/AKfycbxZekg2a1gyTfyFVMuPGpeJVnF0OQHXmy-V_GKioIC6qw8QXtcmEwkBpZl2elCtCreZdw/exec"; // The URL from your deployed Apps Script Web App
 
 // ...
 
@@ -157,7 +157,7 @@ async function askAI(query) {
 
   const lowerQuery = query.toLowerCase();
   const words = lowerQuery.split(/\s+/).filter(w => w.length > 2);
-  
+
   const candidates = (window.globalData || []).filter(d => {
     const text = `${d.titre} ${d.description || ''} ${d.module}`.toLowerCase();
     return words.some(word => text.includes(word));
@@ -197,6 +197,9 @@ async function askAI(query) {
 
     if (data.error) {
       console.error("AI_PROXY_ERROR:", data.error);
+      if (data.error === "REPAIR_MODE") {
+        throw new Error(t('ai_repair_mode') || "AI CHATBOT IS UNDER REPAIR, PLEASE TRY AGAIN LATER 🎓");
+      }
       throw new Error(t('ai_error') || data.error);
     }
 

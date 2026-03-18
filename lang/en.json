@@ -72,5 +72,6 @@
   "browse_badge": "Digital Library",
   "browse_title_main": "Browse Resources",
   "browse_desc_main": "Select your semester to start exploring.",
-  "ai_error": "Sorry, Qrayti-Bot is temporarily unavailable for a quick update. Try again in 2 minutes! 🎓"
+  "ai_error": "Sorry, Qrayti-Bot is temporarily unavailable for a quick update. Try again in 2 minutes! 🎓",
+  "ai_repair_mode": "AI CHATBOT IS UNDER REPAIR, PLEASE TRY AGAIN LATER 🎓"
 }
