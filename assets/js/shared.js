@@ -257,30 +257,52 @@ function openPdf(id, title, isUrl = false) {
   let link = isUrl ? id : 'https://drive.google.com/file/d/' + id + '/view';
   let preview = isUrl ? id : 'https://drive.google.com/file/d/' + id + '/preview';
 
-  // High-Performance Video Detection
-  const isVideo = isUrl ? (id.includes('youtube.com') || id.includes('youtu.be')) : (detectItemType({ type: 'VIDEO' }) === 'VIDEOS');
+  // Detect YouTube
+  const isYoutube = isUrl && (id.includes('youtube.com') || id.includes('youtu.be'));
 
-  // YouTube Smart Conversion
-  if (isUrl && (id.includes('youtube.com') || id.includes('youtu.be'))) {
+  if (isYoutube) {
     const videoId = id.includes('v=') ? id.split('v=')[1].split('&')[0] : id.split('/').pop();
     preview = `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0`;
-  }
-  // Google Drive Direct Video Stream (Fastest)
-  else if (!isUrl && detectItemType({ titre: title, type: '' }) === 'VIDEOS') {
+  } else if (!isUrl && detectItemType({ titre: title, type: '' }) === 'VIDEOS') {
     preview = `https://drive.google.com/file/d/${id}/preview?resourcekey&autoplay=1`;
   }
 
   document.getElementById('pdfOpenLink').href = link;
   document.getElementById('pdfLoading').style.display = 'flex';
-  document.getElementById('pdfFrame').style.display = 'none';
-  document.getElementById('pdfFrame').src = preview;
-  document.getElementById('pdfFrame').onload = () => {
+  const frame = document.getElementById('pdfFrame');
+  frame.style.display = 'none';
+  frame.src = preview;
+  frame.onload = () => {
     document.getElementById('pdfLoading').style.display = 'none';
-    document.getElementById('pdfFrame').style.display = 'block';
+    frame.style.display = 'block';
   };
   document.getElementById('pdfOverlay').classList.add('open');
   document.body.style.overflow = 'hidden';
-  window.QRAYTI.activeFileId = id; // Update active file
+  window.QRAYTI.activeFileId = id;
+
+  // ── CHATBOT BUTTON: Hide during preview ──
+  const trigger = document.getElementById('chatbotTrigger');
+  if (trigger) trigger.style.display = 'none';
+
+  // ── FULLSCREEN BUTTON: Inject if not present ──
+  const wrapper = frame.parentElement;
+  if (wrapper && !document.getElementById('qrFullscreenBtn')) {
+    const fsBtn = document.createElement('button');
+    fsBtn.id = 'qrFullscreenBtn';
+    fsBtn.title = 'Plein écran';
+    fsBtn.innerHTML = '⛶';
+    fsBtn.style.cssText = 'position:absolute;bottom:10px;right:10px;z-index:9999;background:rgba(0,0,0,0.65);color:#fff;border:none;border-radius:8px;padding:6px 10px;font-size:18px;cursor:pointer;transition:background .2s;';
+    fsBtn.onmouseenter = () => fsBtn.style.background = 'rgba(0,0,0,0.9)';
+    fsBtn.onmouseleave = () => fsBtn.style.background = 'rgba(0,0,0,0.65)';
+    fsBtn.onclick = () => {
+      const el = document.getElementById('pdfFrame');
+      const req = el.requestFullscreen || el.webkitRequestFullscreen || el.mozRequestFullScreen || el.msRequestFullscreen;
+      if (req) req.call(el);
+    };
+    // Make wrapper relative so button positions correctly
+    if (getComputedStyle(wrapper).position === 'static') wrapper.style.position = 'relative';
+    wrapper.appendChild(fsBtn);
+  }
 }
 
 function closePdfDirect() {
@@ -289,12 +311,68 @@ function closePdfDirect() {
     ov.classList.remove('open');
     document.getElementById('pdfFrame').src = '';
     document.body.style.overflow = '';
-    window.QRAYTI.activeFileId = null; // Reset active file
+    window.QRAYTI.activeFileId = null;
+
+    // ── CHATBOT BUTTON: Show again after preview closes ──
+    const trigger = document.getElementById('chatbotTrigger');
+    if (trigger) trigger.style.display = '';
+
+    // ── FULLSCREEN BUTTON: Remove injected button ──
+    const fsBtn = document.getElementById('qrFullscreenBtn');
+    if (fsBtn) fsBtn.remove();
+
+    // ── ZOOM: Reset to 100% ──
+    _pdfZoomLevel = 1.0;
+    const scaler = document.getElementById('pdfZoomScaler');
+    if (scaler) scaler.style.transform = 'scale(1)';
+    const label = document.getElementById('pdfZoomLabel');
+    if (label) label.textContent = '100%';
+    const wrapper = document.getElementById('pdfIframeWrapper');
+    if (wrapper) wrapper.style.overflow = 'hidden';
   }
 }
 
 function closePdf(e) {
   if (e.target === document.getElementById('pdfOverlay')) closePdfDirect();
+}
+
+// ── ZOOM ENGINE (scales the inner wrapper, never the layout) ──
+let _pdfZoomLevel = 1.0;
+const PDF_ZOOM_STEP = 0.15;
+const PDF_ZOOM_MIN  = 0.5;
+const PDF_ZOOM_MAX  = 3.0;
+
+function _applyZoom() {
+  const scaler = document.getElementById('pdfZoomScaler');
+  if (!scaler) return;
+
+  // Scale the inner scaler; transform-origin:top center keeps alignment correct
+  scaler.style.transform = `scale(${_pdfZoomLevel})`;
+
+  // Adjust wrapper scroll height so scaled content is reachable
+  const wrapper = document.getElementById('pdfIframeWrapper');
+  if (wrapper) {
+    if (_pdfZoomLevel > 1) {
+      // Give scroll room proportional to zoom
+      wrapper.style.overflowY = 'auto';
+      wrapper.style.overflowX = 'auto';
+    } else {
+      wrapper.style.overflow = 'hidden';
+    }
+  }
+
+  const label = document.getElementById('pdfZoomLabel');
+  if (label) label.textContent = Math.round(_pdfZoomLevel * 100) + '%';
+}
+
+function pdfZoom(direction) {
+  _pdfZoomLevel = Math.min(PDF_ZOOM_MAX, Math.max(PDF_ZOOM_MIN, _pdfZoomLevel + direction * PDF_ZOOM_STEP));
+  _applyZoom();
+}
+
+function pdfZoomReset() {
+  _pdfZoomLevel = 1.0;
+  _applyZoom();
 }
 
 document.addEventListener('keydown', e => {
