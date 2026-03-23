@@ -5,11 +5,8 @@
 
 let allDocuments = [];
 let currentState = {
-  level: 'sem', // sem, fil, mod, type, files
-  sem: null,
-  fil: null,
-  mod: null,
-  type: null
+  level: 'folder', // 'folder' or 'files' (files is used when we show the final list)
+  path: [] // Array of strings representing the current folder path
 };
 
 // ── 1. INITIALIZATION ──
@@ -21,7 +18,7 @@ window.showPage = function () {
     }
     allDocuments = parseCSV(csvText);
 
-    // Deep Linking: Check if we have a pending navigation from the chatbot
+    // Deep Linking: Handle old fixed states or new path states
     const pendingNav = sessionStorage.getItem('pending_nav');
     const pendingPdf = sessionStorage.getItem('pending_pdf');
 
@@ -29,6 +26,13 @@ window.showPage = function () {
       sessionStorage.removeItem('pending_nav');
       try {
         const params = JSON.parse(pendingNav);
+        // Compatibility: If chatbot sends old {sem, fil, mod}, map it to path
+        if (!params.path && params.sem) {
+          params.path = [params.sem];
+          if (params.fil) params.path.push(params.fil);
+          if (params.mod) params.path.push(params.mod);
+          if (params.type) params.path.push(params.type);
+        }
         Object.assign(currentState, params);
       } catch (e) { console.error("Invalid pending_nav state"); }
     }
@@ -61,49 +65,46 @@ function renderCurrentLevel() {
 
   updateBreadcrumbs();
 
-  if (currentState.level === 'sem') {
-    const sems = [...new Set(allDocuments.map(d => d.semestre))].filter(Boolean).sort();
-    sems.forEach((s, i) => {
-      const count = allDocuments.filter(d => d.semestre === s).length;
-      grid.appendChild(createCard('📅', s, `${count} ${count > 1 ? t('file_plural') : t('file_singular')}`, i, () => {
-        navigateLevel({ level: 'fil', sem: s });
-      }));
-    });
+  const currentPath = currentState.path || [];
+  const depth = currentPath.length;
 
-  } else if (currentState.level === 'fil') {
-    const fils = [...new Set(allDocuments.filter(d => d.semestre === currentState.sem).map(d => d.filiere))].filter(Boolean).sort();
-    fils.forEach((f, i) => {
-      const count = allDocuments.filter(d => d.semestre === currentState.sem && d.filiere === f).length;
-      grid.appendChild(createCard('🎓', f, `${count} ${count > 1 ? t('file_plural') : t('file_singular')}`, i, () => {
-        navigateLevel({ level: 'mod', fil: f });
-      }));
-    });
+  // Filter documents that belong to this branch
+  const branchDocs = allDocuments.filter(d => {
+    return currentPath.every((p, i) => d.path[i] === p);
+  });
 
-  } else if (currentState.level === 'mod') {
-    const mods = [...new Set(allDocuments.filter(d => d.semestre === currentState.sem && d.filiere === currentState.fil).map(d => d.module))].filter(Boolean).sort();
-    mods.forEach((m, i) => {
-      const count = allDocuments.filter(d => d.semestre === currentState.sem && d.filiere === currentState.fil && d.module === m).length;
-      grid.appendChild(createCard('📖', m, `${count} ${count > 1 ? t('file_plural') : t('file_singular')}`, i, () => {
-        navigateLevel({ level: 'type', mod: m });
-      }));
-    });
+  // IDENTIFY SUBFOLDERS
+  const subfolderMap = new Map(); // Name -> Count
+  const filesInCurrentFolder = [];
 
-  } else if (currentState.level === 'type') {
-    const types = [...new Set(allDocuments.filter(d => d.semestre === currentState.sem && d.filiere === currentState.fil && d.module === currentState.mod).map(d => detectItemType(d)))];
-    types.forEach((tp, i) => {
-      const count = allDocuments.filter(d => d.semestre === currentState.sem && d.filiere === currentState.fil && d.module === currentState.mod && detectItemType(d) === tp).length;
-      const card = createCard(typeIcon(tp), typeLabel(tp), `${count} ${count > 1 ? t('file_plural') : t('file_singular')}`, i, () => {
-        navigateLevel({ level: 'files', type: tp });
-      });
-      const typeClass = tp.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]/g, '');
-      card.classList.add(`type-${typeClass}`);
-      grid.appendChild(card);
-    });
+  branchDocs.forEach(d => {
+    if (d.path.length > depth) {
+      const folderName = d.path[depth];
+      subfolderMap.set(folderName, (subfolderMap.get(folderName) || 0) + 1);
+    } else {
+      filesInCurrentFolder.push(d);
+    }
+  });
 
-  } else if (currentState.level === 'files') {
+  // RENDER FOLDERS
+  const folders = Array.from(subfolderMap.keys()).sort();
+  folders.forEach((f, i) => {
+    const totalInFolder = branchDocs.filter(d => d.path[depth] === f).length;
+    let icon = '📁';
+    // Visual candy: Use specific icons for first level if they look like S1, S2...
+    if (depth === 0 && (f.startsWith('S') || f.startsWith('s'))) icon = '📅';
+
+    grid.appendChild(createCard(icon, f, `${totalInFolder} ${totalInFolder > 1 ? t('file_plural') : t('file_singular')}`, i, () => {
+      navigateLevel({ path: [...currentPath, f] });
+    }));
+  });
+
+  // IF NO SUBFOLDERS: Show Files
+  if (folders.length === 0 || currentState.level === 'files') {
     grid.style.display = 'none';
     filesArea.style.display = 'block';
-    renderFiles();
+    renderFiles(branchDocs); // Use branchDocs or filesInCurrentFolder depending on UX preference
+    // User probably wants the list of files in the current leaf
   }
 }
 
@@ -121,17 +122,10 @@ function createCard(icon, label, category, index, onClick) {
 }
 
 // ── 4. FILES LIST RENDERING ──
-function renderFiles() {
+function renderFiles(files) {
   const list = document.getElementById('filesList');
   const count = document.getElementById('filesCount');
   const noFiles = document.getElementById('noFiles');
-
-  const files = allDocuments.filter(d =>
-    d.semestre === currentState.sem &&
-    d.filiere === currentState.fil &&
-    d.module === currentState.mod &&
-    detectItemType(d) === currentState.type
-  );
 
   list.innerHTML = '';
   if (files.length === 0) {
@@ -156,7 +150,7 @@ function renderFiles() {
     item.onclick = (e) => {
       e.preventDefault();
       if (typeof openPdf === 'function') {
-        openPdf(f.id, f.titre, !!f.lienURL);
+        openPdf(f.id, f.titre, String(f.id).startsWith('http'));
       }
     };
     item.innerHTML = `
@@ -181,35 +175,27 @@ function updateBreadcrumbs() {
   const sep = '<span class="breadcrumb-sep">›</span>';
   let parts = [];
 
-  parts.push({ label: t('nav_home'), lvl: 'sem' });
+  parts.push({ label: t('nav_home'), path: [] });
 
-  if (currentState.sem) parts.push({ label: currentState.sem, lvl: 'fil' });
-  if (currentState.fil) parts.push({ label: currentState.fil, lvl: 'mod' });
-  if (currentState.mod) parts.push({ label: currentState.mod, lvl: 'type' });
-  if (currentState.type) parts.push({ label: typeLabel(currentState.type), lvl: 'files' });
+  let cumulativePath = [];
+  currentState.path.forEach(p => {
+    cumulativePath.push(p);
+    parts.push({ label: p, path: [...cumulativePath] });
+  });
 
   bc.innerHTML = parts.map((p, i) => {
     const isLast = (i === parts.length - 1);
     const className = isLast ? "breadcrumb-item active" : "breadcrumb-item";
-    const action = isLast ? "" : `onclick="navigateLevel({ level: '${p.lvl}', jump: true })"`;
+    const action = isLast ? "" : `onclick="navigateLevel({ path: ${JSON.stringify(p.path).replace(/"/g, "'")}, jump: true })"`;
     return `<button class="${className}" ${action}>${p.label}</button>`;
   }).join(sep);
 }
 
 // --- Navigation Logic ---
 window.navigateLevel = function (params, isPopState = false) {
-  // If it's a "jump" or resetting to top, clear lower states
-  if (params.jump || params.level === 'sem') {
-    if (params.level === 'sem') { currentState.sem = null; currentState.fil = null; currentState.mod = null; currentState.type = null; }
-    if (params.level === 'fil') { currentState.fil = null; currentState.mod = null; currentState.type = null; }
-    if (params.level === 'mod') { currentState.mod = null; currentState.type = null; }
-    if (params.level === 'type') { currentState.type = null; }
-  }
-
   // Apply new parameters
   Object.assign(currentState, params);
-  delete currentState.jump; 
-
+  
   // History management
   if (!isPopState) {
     const stateCopy = JSON.parse(JSON.stringify(currentState));
@@ -224,8 +210,7 @@ window.addEventListener('popstate', (event) => {
     currentState = JSON.parse(JSON.stringify(event.state.state));
     renderCurrentLevel();
   } else {
-    // Fallback to home if state is missing
-    window.location.reload(); // Hard reset if history is lost
+    window.location.reload(); 
   }
 });
 

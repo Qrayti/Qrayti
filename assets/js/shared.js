@@ -69,10 +69,10 @@ function parseCSV(text) {
       if (char === '"') {
         inQuotes = true;
       } else if (char === ',') {
-        if (currentRow.length < 9) currentRow.push(currentCell.trim());
+        if (currentRow.length < 14) currentRow.push(currentCell.trim());
         currentCell = '';
       } else if (char === '\n' || (char === '\r' && nextChar === '\n')) {
-        if (currentRow.length < 9) currentRow.push(currentCell.trim());
+        if (currentRow.length < 14) currentRow.push(currentCell.trim());
         if (currentRow.length > 0) rows.push(currentRow);
         currentRow = [];
         currentCell = '';
@@ -84,7 +84,7 @@ function parseCSV(text) {
   }
 
   if (currentCell || currentRow.length > 0) {
-    if (currentRow.length < 9) currentRow.push(currentCell.trim());
+    if (currentRow.length < 14) currentRow.push(currentCell.trim());
     rows.push(currentRow);
   }
 
@@ -96,7 +96,24 @@ function parseCSV(text) {
     if (!titre && !id) return null;
 
     let preType = normalizeType(row[5]);
-    if (id.includes('youtu') || preType === 'VIDEOS') preType = 'VIDEOS';
+    
+    // ── VIDEO DETECTION PRIORITY ──
+    const idStr = String(id).toLowerCase();
+    const isVideo = idStr.includes('youtu') || 
+                    idStr.includes('vimeo') || 
+                    idStr.endsWith('.mp4') || 
+                    idStr.endsWith('.webm') || 
+                    preType === 'VIDEOS';
+    
+    if (isVideo) preType = 'VIDEOS';
+
+    // ── PATH PROCESSING (Column N / Index 13) ──
+    const rawPath = (row[13] || '').replace(/^"|"$/g, '').trim();
+    // Process path: split, remove FSDM, filter empty
+    let pathParts = rawPath.split('/').map(p => p.trim()).filter(Boolean);
+    if (pathParts[0]?.toUpperCase() === 'FSDM') {
+      pathParts.shift();
+    }
 
     return {
       filiere: (row[1] || '').replace(/^"|"$/g, '').trim(),
@@ -106,7 +123,8 @@ function parseCSV(text) {
       type: preType,
       titre: titre,
       id: id,
-      description: (row[8] || '').replace(/^"|"$/g, '').trim()
+      description: (row[8] || '').replace(/^"|"$/g, '').trim(),
+      path: pathParts // Store as array for easy navigation
     };
   }).filter(Boolean);
 }
@@ -117,17 +135,15 @@ function detectItemType(r) {
 
 function normalizeType(t) {
   if (!t) return 'OTHER';
-  const raw = String(t).trim();
-  const up = raw.toUpperCase();
+  // Normalize: lowercase, remove accents
+  const raw = String(t).trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 
-  if (up.includes('TD')) return 'TD';
-  if (up.includes('TP')) return 'TP';
-  if (up.includes('COURS')) return 'COURS';
-  if (up.includes('VIDEO')) return 'VIDEOS';
-  if (up.includes('EXAM')) return 'EXAM';
-
-  const normalized = raw.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
-  if (normalized.includes('resume')) return 'Résumé';
+  if (raw.includes('td')) return 'TD';
+  if (raw.includes('tp')) return 'TP';
+  if (raw.includes('cours')) return 'COURS';
+  if (raw.includes('video')) return 'VIDEOS';
+  if (raw.includes('exam') || raw.includes('ctrl') || raw.includes('controle')) return 'EXAM';
+  if (raw.includes('resume')) return 'Résumé';
 
   return 'OTHER';
 }

@@ -52,25 +52,24 @@ function addBotMessage(text, suggestions = []) {
       const sugDiv = document.createElement('div');
       sugDiv.className = 'msg-suggestion';
       sugDiv.onclick = () => {
-        // Prepare navigation parameters
+        // Prepare navigation parameters using the new dynamic path
         const navParams = {
           level: 'files',
-          sem: doc.semestre,
-          fil: doc.filiere,
-          mod: doc.module,
-          type: doc.type
+          path: doc.path || []
         };
+
+        const isUrl = String(doc.id).startsWith('http');
 
         // If on browse.html, navigate instantly. If on index, go to browse.html with params.
         if (window.location.pathname.includes('browse.html')) {
           if (typeof window.navigateLevel === 'function') {
             window.navigateLevel(navParams);
-            setTimeout(() => openPdf(doc.id, doc.titre, !!doc.lienURL), 300);
+            setTimeout(() => openPdf(doc.id, doc.titre, isUrl), 300);
           }
         } else {
           // Store state for browse page to pick up
           sessionStorage.setItem('pending_nav', JSON.stringify(navParams));
-          sessionStorage.setItem('pending_pdf', JSON.stringify({ id: doc.id, titre: doc.titre, isUrl: !!doc.lienURL }));
+          sessionStorage.setItem('pending_pdf', JSON.stringify({ id: doc.id, titre: doc.titre, isUrl: isUrl }));
           window.location.href = 'browse.html';
         }
       };

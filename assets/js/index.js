@@ -194,7 +194,7 @@ window.performSearch = function() {
       const item = document.createElement('a');
       item.className = 'result-item';
       item.href = '#';
-      item.onclick = (e) => { e.preventDefault(); openPdf(r.id, r.titre, !!r.lienURL); };
+      item.onclick = (e) => { e.preventDefault(); openPdf(r.id, r.titre, String(r.id).startsWith('http')); };
 
       item.innerHTML = `
         <div class="result-left">
